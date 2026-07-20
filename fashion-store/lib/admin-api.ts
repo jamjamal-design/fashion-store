@@ -29,7 +29,7 @@ type ApiOrder = {
   status: string;
 };
 
-const apiBaseUrl = (process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:4000").replace(/\/$/, "");
+const apiBaseUrl = (process.env.NEXT_PUBLIC_SERVER_URL ?? "https://fashion-store-g8s0.onrender.com").replace(/\/$/, "");
 
 async function requestJson<T>(path: string, init?: RequestInit, includeAuth = true): Promise<T> {
   const token = includeAuth ? getAdminToken() : null;

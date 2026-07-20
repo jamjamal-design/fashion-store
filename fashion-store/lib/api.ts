@@ -1,6 +1,6 @@
 import type { Product } from "../app/data/store";
 
-const API_BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:4000";
+const API_BASE = process.env.NEXT_PUBLIC_SERVER_URL ?? "https://fashion-store-g8s0.onrender.com";
 
 export type ProductImage = {
   url: string;

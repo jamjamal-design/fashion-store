@@ -1,4 +1,4 @@
-const serverBaseUrl = (process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:4000").replace(/\/$/, "");
+const serverBaseUrl = (process.env.NEXT_PUBLIC_SERVER_URL ?? "https://fashion-store-g8s0.onrender.com").replace(/\/$/, "");
 
 export type CloudinaryUploadResult = {
   url: string;
