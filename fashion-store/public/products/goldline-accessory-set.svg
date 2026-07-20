@@ -1,0 +1,15 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B2F16"/>
+      <stop offset="1" stop-color="#A38244"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="120" fill="url(#bg)"/>
+  <circle cx="430" cy="500" r="120" stroke="#F5D87A" stroke-width="24" stroke-opacity="0.92"/>
+  <circle cx="700" cy="470" r="80" stroke="#FFF1BC" stroke-width="22" stroke-opacity="0.9"/>
+  <path d="M780 680C780 595 840 560 900 560" stroke="#F5D87A" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="900" cy="560" r="18" fill="#F5D87A"/>
+  <rect x="260" y="760" width="680" height="110" rx="55" fill="#FFF2C7" fill-opacity="0.1"/>
+  <text x="120" y="1040" fill="#FFF8F2" fill-opacity="0.9" font-family="Arial, sans-serif" font-size="72" font-weight="700">Goldline Accessory Set</text>
+</svg>

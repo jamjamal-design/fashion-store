@@ -1,0 +1,22 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D8C9B3"/>
+      <stop offset="1" stop-color="#6E7C57"/>
+    </linearGradient>
+    <linearGradient id="top" x1="320" y1="300" x2="760" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4EFE7"/>
+      <stop offset="1" stop-color="#D7CCBA"/>
+    </linearGradient>
+    <linearGradient id="pants" x1="340" y1="580" x2="860" y2="1030" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B5C29E"/>
+      <stop offset="1" stop-color="#8EA06A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="120" fill="url(#bg)"/>
+  <rect x="220" y="160" width="760" height="900" rx="100" fill="#FFF" fill-opacity="0.08"/>
+  <path d="M420 280H780L820 470L730 520V710H470V520L380 470L420 280Z" fill="url(#top)"/>
+  <path d="M470 710H730L770 980H650L600 830L550 980H430L470 710Z" fill="url(#pants)"/>
+  <path d="M600 470V980" stroke="#FFF8F2" stroke-opacity="0.38" stroke-width="10" stroke-linecap="round"/>
+  <text x="120" y="1040" fill="#FFF8F2" fill-opacity="0.9" font-family="Arial, sans-serif" font-size="72" font-weight="700">Linen City Set</text>
+</svg>

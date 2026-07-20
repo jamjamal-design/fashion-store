@@ -1,0 +1,20 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#21161A"/>
+      <stop offset="1" stop-color="#6D2C35"/>
+    </linearGradient>
+    <linearGradient id="dress" x1="350" y1="250" x2="850" y2="980" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B86E47"/>
+      <stop offset="1" stop-color="#E4B08B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="120" fill="url(#bg)"/>
+  <circle cx="930" cy="250" r="190" fill="#F0D0BF" fill-opacity="0.16"/>
+  <circle cx="250" cy="980" r="250" fill="#D38A61" fill-opacity="0.18"/>
+  <path d="M600 240L470 360L515 540L425 890H775L685 540L730 360L600 240Z" fill="url(#dress)" stroke="#FFF8F2" stroke-opacity="0.3" stroke-width="10"/>
+  <path d="M515 540C560 500 640 500 685 540" stroke="#FFF8F2" stroke-opacity="0.35" stroke-width="10" stroke-linecap="round"/>
+  <path d="M470 360C515 315 685 315 730 360" stroke="#FFF8F2" stroke-opacity="0.25" stroke-width="10" stroke-linecap="round"/>
+  <rect x="250" y="150" width="700" height="900" rx="80" stroke="#FFF8F2" stroke-opacity="0.08" stroke-width="18"/>
+  <text x="120" y="1040" fill="#FFF8F2" fill-opacity="0.9" font-family="Arial, sans-serif" font-size="72" font-weight="700">Velvet Wrap Dress</text>
+</svg>

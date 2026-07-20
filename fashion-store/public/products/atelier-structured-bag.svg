@@ -1,0 +1,18 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B1D18"/>
+      <stop offset="1" stop-color="#7A4A30"/>
+    </linearGradient>
+    <linearGradient id="bag" x1="320" y1="350" x2="840" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B57A55"/>
+      <stop offset="1" stop-color="#E5C2A6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="120" fill="url(#bg)"/>
+  <rect x="290" y="360" width="620" height="540" rx="88" fill="url(#bag)"/>
+  <path d="M410 375C410 275 470 220 600 220C730 220 790 275 790 375" stroke="#FFF8F2" stroke-opacity="0.6" stroke-width="28" stroke-linecap="round"/>
+  <rect x="530" y="545" width="140" height="16" rx="8" fill="#FFF8F2" fill-opacity="0.72"/>
+  <circle cx="600" cy="620" r="24" fill="#FFF8F2" fill-opacity="0.75"/>
+  <text x="120" y="1040" fill="#FFF8F2" fill-opacity="0.9" font-family="Arial, sans-serif" font-size="72" font-weight="700">Atelier Structured Bag</text>
+</svg>

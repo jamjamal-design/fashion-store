@@ -1,0 +1,119 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useCart } from "../components/cart-context";
+import { formatCurrency } from "../data/store";
+
+export default function CartPage() {
+  const { items, subtotal, subtotalLabel, updateQuantity, removeFromCart, clearCart } = useCart();
+  const shipping = subtotal > 0 ? 18 : 0;
+  const total = subtotal + shipping;
+
+  return (
+    <div className="section-shell py-8 md:py-12">
+      <div className="space-y-4">
+        <span className="section-badge">Cart</span>
+        <h1 className="text-4xl font-black tracking-tight md:text-5xl">Review your order</h1>
+        <p className="max-w-2xl text-muted">
+          Update quantities, remove products, and check the subtotal before moving to checkout.
+        </p>
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="glass-surface rounded-[2rem] p-5 md:p-6">
+          {items.length === 0 ? (
+            <div className="rounded-[1.5rem] border border-dashed border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-8 text-center">
+              <p className="text-lg font-bold">Your cart is empty.</p>
+              <p className="mt-2 text-sm text-muted">Browse the shop and add products to continue.</p>
+              <Link href="/shop" className="button-primary mt-5">
+                Shop products
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {items.map(({ product, quantity }) => (
+                <article
+                  key={product.id}
+                  className="grid gap-4 rounded-[1.5rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4 md:grid-cols-[120px_1fr_auto]"
+                >
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={280}
+                    height={280}
+                    className="h-28 w-full rounded-[1rem] object-cover"
+                  />
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[color:var(--accent-strong)]">
+                      {product.category}
+                    </p>
+                    <h2 className="mt-1 text-lg font-black">{product.name}</h2>
+                    <p className="mt-2 text-sm text-muted">{product.description}</p>
+                    <p className="mt-3 text-sm font-bold text-[color:var(--accent-strong)]">
+                      {formatCurrency(product.price)} each
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-end justify-between gap-3">
+                    <div className="flex items-center rounded-full border border-[color:var(--border)] bg-white px-2 py-1">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(product.id, quantity - 1)}
+                        className="rounded-full px-3 py-1 text-lg font-black text-muted"
+                      >
+                        -
+                      </button>
+                      <span className="min-w-10 px-3 text-center font-black">{quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(product.id, quantity + 1)}
+                        className="rounded-full px-3 py-1 text-lg font-black text-muted"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeFromCart(product.id)}
+                      className="text-sm font-semibold text-[color:var(--accent-strong)]"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <aside className="glass-surface rounded-[2rem] p-6">
+          <h2 className="text-2xl font-black">Order summary</h2>
+          <div className="mt-4 grid gap-3 rounded-[1.5rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Subtotal</span>
+              <span className="font-bold">{subtotalLabel}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Shipping</span>
+              <span className="font-bold">{formatCurrency(shipping)}</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-[color:var(--border)] pt-3">
+              <span className="font-black">Total</span>
+              <span className="text-lg font-black text-[color:var(--accent-strong)]">{formatCurrency(total)}</span>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-col gap-3">
+            <Link href="/checkout" className="button-primary w-full">
+              Proceed to checkout
+            </Link>
+            <button type="button" onClick={clearCart} className="button-secondary w-full">
+              Clear cart
+            </button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
