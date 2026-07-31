@@ -61,14 +61,28 @@ export default function RootLayout({
       lang="en"
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full bg-background text-foreground">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{var d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.setAttribute('data-theme',d?'dark':'light');}}catch(e){}})();
+            `.trim(),
+          }}
+        />
+      </head>
+      <body className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
         <Providers>
           <div className="relative flex min-h-screen flex-col overflow-hidden">
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,_rgba(79,140,255,0.22),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(123,97,255,0.18),_transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(73,196,255,0.12),_transparent_22%),linear-gradient(180deg,_#08111d_0%,_#091522_46%,_#07111f_100%)]" />
+            {/* Themed ambient gradient background (light beige or dark rich-black) */}
+            <div
+              className="pointer-events-none fixed inset-0 -z-10"
+              style={{ background: 'var(--page-gradient)' }}
+            />
             {/* Site logo as background watermark */}
             <div
-              className="pointer-events-none fixed inset-0 flex items-center justify-center opacity-[0.08]"
+              className="pointer-events-none fixed inset-0 flex items-center justify-center opacity-[0.03]"
               style={{
                 backgroundImage: "url('/logo.png')",
                 backgroundRepeat: "no-repeat",
@@ -78,9 +92,9 @@ export default function RootLayout({
               }}
               aria-hidden="true"
             />
-            <div className="pointer-events-none absolute left-[4%] top-[12%] -z-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(79,140,255,0.22),transparent_72%)] animate-float" />
-            <div className="pointer-events-none absolute right-[8%] top-[30%] -z-10 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(123,97,255,0.18),transparent_72%)] animate-float-slow" />
-            <div className="pointer-events-none absolute bottom-[8%] left-[20%] -z-10 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(73,196,255,0.12),transparent_72%)] animate-float" />
+            <div className="pointer-events-none absolute left-[4%] top-[12%] -z-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.10),transparent_72%)] animate-float" />
+            <div className="pointer-events-none absolute right-[8%] top-[30%] -z-10 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.14),transparent_72%)] animate-float-slow" />
+            <div className="pointer-events-none absolute bottom-[8%] left-[20%] -z-10 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.08),transparent_72%)] animate-float" />
             <SiteHeader />
             <main className="flex-1">{children}</main>
             <SiteFooter />

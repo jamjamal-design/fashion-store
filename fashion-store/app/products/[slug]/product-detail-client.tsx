@@ -6,6 +6,7 @@ import { type Product, formatCurrency, whatsappUrl } from "../../data/store";
 import { useCart } from "../../components/cart-context";
 import { ProductImage } from "../../components/product-image";
 import { fetchProductsByCategory, toLegacyProducts } from "../../../lib/api";
+import { GoldShimmerButton } from "../../components/gold-shimmer-button";
 
 export function ProductDetailClient({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -45,7 +46,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 <Link
                   key={item.id || item.slug}
                   href={`/products/${item.slug}`}
-                  className="rounded-3xl border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-3 transition hover:bg-[rgba(14,24,47,0.96)]"
+                  className="rounded-3xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-3 transition hover:bg-white/90"
                 >
                   <ProductImage
                     src={item.image}
@@ -54,7 +55,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
                     height={240}
                     className="h-36 w-full rounded-2xl object-cover"
                   />
-                <p className="mt-3 text-sm font-bold">{item.name}</p>
+                <p className="mt-3 text-sm font-bold text-[color:var(--rich-black)]">{item.name}</p>
                 <p className="text-xs text-muted">{formatCurrency(item.price)}</p>
               </Link>
             ))}
@@ -62,22 +63,22 @@ export function ProductDetailClient({ product }: { product: Product }) {
         </div>
 
         <aside className="glass-surface rounded-[2rem] p-6 md:p-8">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[color:var(--accent-strong)]">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">
             {product.category}
           </p>
           <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-black tracking-tight">{product.name}</h1>
+              <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)]">{product.name}</h1>
               <p className="mt-2 text-muted">{product.description}</p>
             </div>
-            <p className="text-3xl font-black text-[color:var(--accent-strong)]">
+            <p className="text-3xl font-black text-[color:var(--gold)]">
               {formatCurrency(product.price)}
             </p>
           </div>
 
-          <div className="mt-6 grid gap-4 rounded-[1.5rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4">
+          <div className="mt-6 grid gap-4 rounded-[1.5rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4">
             <div>
-              <p className="text-sm font-bold">Colors</p>
+              <p className="text-sm font-bold text-[color:var(--rich-black)]">Colors</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {product.colors.map((color) => (
                   <button
@@ -86,8 +87,8 @@ export function ProductDetailClient({ product }: { product: Product }) {
                     onClick={() => setSelectedColor(color)}
                     className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
                       selectedColor === color
-                        ? "bg-[color:var(--foreground)] text-white"
-                        : "border border-[color:var(--border)] bg-white text-muted"
+                        ? "bg-[color:var(--gold)] text-white"
+                        : "border border-[rgba(var(--ink-rgb),0.08)] bg-white text-muted"
                     }`}
                   >
                     {color}
@@ -97,7 +98,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </div>
 
             <div>
-              <p className="text-sm font-bold">Sizes</p>
+              <p className="text-sm font-bold text-[color:var(--rich-black)]">Sizes</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {product.sizes.map((size) => (
                   <button
@@ -106,8 +107,8 @@ export function ProductDetailClient({ product }: { product: Product }) {
                     onClick={() => setSelectedSize(size)}
                     className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
                       selectedSize === size
-                        ? "bg-[color:var(--accent-strong)] text-white"
-                        : "border border-[color:var(--border)] bg-white text-muted"
+                        ? "bg-[color:var(--gold)] text-white"
+                        : "border border-[rgba(var(--ink-rgb),0.08)] bg-white text-muted"
                     }`}
                   >
                     {size}
@@ -117,8 +118,8 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </div>
 
             <div>
-              <p className="text-sm font-bold">Quantity</p>
-              <div className="mt-2 flex w-fit items-center rounded-full border border-[color:var(--border)] bg-white px-2 py-1">
+              <p className="text-sm font-bold text-[color:var(--rich-black)]">Quantity</p>
+              <div className="mt-2 flex w-fit items-center rounded-full border border-[rgba(var(--ink-rgb),0.08)] bg-white px-2 py-1">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -126,7 +127,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 >
                   -
                 </button>
-                <span className="min-w-10 px-3 text-center font-black">{quantity}</span>
+                <span className="min-w-10 px-3 text-center font-black text-[color:var(--rich-black)]">{quantity}</span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
@@ -139,8 +140,8 @@ export function ProductDetailClient({ product }: { product: Product }) {
           </div>
 
           <div className="mt-6 space-y-4">
-            <div className="rounded-[1.5rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4">
-              <p className="text-sm font-bold">Product details</p>
+            <div className="rounded-[1.5rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4">
+              <p className="text-sm font-bold text-[color:var(--rich-black)]">Product details</p>
               <ul className="mt-3 grid gap-2 text-sm text-muted">
                 {product.details.map((detail) => (
                   <li key={detail}>• {detail}</li>
@@ -149,13 +150,12 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
+              <GoldShimmerButton
                 onClick={() => addToCart(product, quantity)}
                 className="button-primary w-full"
               >
                 Add to cart
-              </button>
+              </GoldShimmerButton>
               <Link href="/checkout" className="button-secondary w-full">
                 Checkout now
               </Link>

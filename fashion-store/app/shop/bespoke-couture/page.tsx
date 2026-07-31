@@ -23,7 +23,7 @@ export default async function BespokeCouturePage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Bespoke Couture</span>
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl">Bespoke Couture</h1>
+            <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Bespoke Couture</h1>
             <p className="max-w-2xl text-muted">
               Custom-made, tailored-to-perfection outfits crafted for the individual. Every stitch tells your story.
             </p>
@@ -41,7 +41,7 @@ export default async function BespokeCouturePage() {
       </section>
 
       {collectionProducts.length === 0 && (
-        <section className="mt-8 rounded-[2rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.3)] p-12 text-center">
+        <section className="mt-8 rounded-[2rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/60 p-12 text-center">
           <p className="text-lg text-muted">No products available at the moment. Check back soon.</p>
           <Link href="/shop" className="button-primary mt-4 inline-block px-6 py-2.5">Browse all products</Link>
         </section>

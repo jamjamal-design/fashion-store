@@ -41,10 +41,10 @@ export default function AdminLoginPage() {
 
   return (
     <div className="section-shell flex min-h-[calc(100vh-8rem)] items-center py-10">
-      <div className="mx-auto grid w-full max-w-5xl gap-8 rounded-[2rem] border border-[color:var(--border)] bg-[rgba(9,17,33,0.84)] p-6 shadow-[0_30px_80px_rgba(4,10,24,0.34)] backdrop-blur-xl md:grid-cols-[1.05fr_0.95fr] md:p-10">
+      <div className="mx-auto grid w-full max-w-5xl gap-8 rounded-[2rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-6 shadow-[0_30px_80px_rgba(var(--ink-rgb),0.06)] md:grid-cols-[1.05fr_0.95fr] md:p-10">
         <div className="space-y-5">
           <span className="section-badge">Admin access</span>
-          <h1 className="text-4xl font-black tracking-tight md:text-6xl">Sign in to manage the store</h1>
+          <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-6xl">Sign in to manage the store</h1>
           <p className="max-w-xl text-muted">
             Access product editing, order management, and Cloudinary uploads from a single authenticated dashboard.
           </p>
@@ -52,17 +52,17 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="glass-surface rounded-[1.75rem] p-6 md:p-8">
           <div className="space-y-4">
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Email
               <input className="input-field" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Password
               <input className="input-field" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
             </label>
 
-            {error ? <p className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p> : null}
+            {error ? <p className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</p> : null}
 
             <button type="submit" className="button-primary w-full" disabled={isSubmitting}>
               {isSubmitting ? "Signing in..." : "Sign in"}

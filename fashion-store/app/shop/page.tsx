@@ -53,7 +53,7 @@ export default function ShopPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Shop</span>
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl">Browse the full collection</h1>
+            <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Browse the full collection</h1>
             <p className="max-w-2xl text-muted">
               Search products, filter by category, open details, and add items to cart without leaving the page.
             </p>
@@ -84,8 +84,8 @@ export default function ShopPage() {
                 onClick={() => setActiveCategory(category)}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   activeCategory === category
-                    ? "bg-[color:var(--foreground)] text-white"
-                    : "border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] text-muted hover:text-[color:var(--foreground)]"
+                    ? "bg-[color:var(--gold)] text-white"
+                    : "border border-[rgba(var(--ink-rgb),0.08)] bg-white/70 text-muted hover:text-[color:var(--rich-black)]"
                 }`}
               >
                 {category}

@@ -5,6 +5,7 @@ import { type Product, whatsappUrl } from "./data/store";
 import { HeroSlider } from "./components/hero-slider";
 import { FeaturedProducts } from "./components/featured-products";
 import { CollectionCards } from "./components/collection-cards";
+import { SizeGuide } from "./components/size-guide";
 import { fetchFeaturedProducts, fetchPublicProducts, fetchPublicCategories, fetchProductsByCategory, toLegacyProducts, type ApiCategory } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -102,15 +103,15 @@ export default async function Home() {
                 height={520}
                 className="h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[rgba(8,16,32,0.5)] to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[rgba(var(--scrim-rgb),0.5)] to-transparent" />
             </div>
             {/* Floating badge */}
-            <div className="absolute -bottom-4 -right-4 flex items-center gap-3 rounded-xl border border-[rgba(212,160,23,0.25)] bg-[rgba(8,16,32,0.95)] px-5 py-3 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] md:-bottom-6 md:-right-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[rgba(212,160,23,0.15)]">
-                <span className="text-2xl font-black text-[color:var(--accent-strong)]">6+</span>
+            <div className="absolute -bottom-4 -right-4 flex items-center gap-3 rounded-xl border border-[rgba(201,168,76,0.20)] bg-white px-5 py-3 backdrop-blur-xl shadow-[0_8px_32px_rgba(var(--ink-rgb),0.08)] md:-bottom-6 md:-right-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[rgba(201,168,76,0.10)]">
+                <span className="text-2xl font-black text-[color:var(--gold)]">6+</span>
               </div>
               <div>
-                <p className="text-sm font-bold text-white">Exclusive</p>
+                <p className="text-sm font-bold text-[color:var(--rich-black)]">Exclusive</p>
                 <p className="text-xs text-muted">Collections</p>
               </div>
             </div>
@@ -120,7 +121,7 @@ export default async function Home() {
             <h2 className="text-3xl font-black md:text-5xl">
               Where elegance meets
               <br />
-              <span className="text-[color:var(--accent-strong)]">individuality</span>
+              <span className="text-[color:var(--gold)]">individuality</span>
             </h2>
             <p className="leading-8 text-muted">
               Claireville is a luxury fashion house built on the belief that true style is deeply personal. 
@@ -145,6 +146,12 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════════
+         FIND YOUR FIT — Clothing size guide
+         (positioned immediately after the Luxury Boutique section)
+         ═══════════════════════════════════════ */}
+      <SizeGuide />
+
+      {/* ═══════════════════════════════════════
          COLLECTIONS — Interactive cards with products
          ═══════════════════════════════════════ */}
       <CollectionsSection />
@@ -161,7 +168,7 @@ export default async function Home() {
         <div className="mb-12 flex flex-col items-center text-center">
           <span className="section-badge">The Claireville experience</span>
           <h2 className="mt-4 text-3xl font-black md:text-5xl">
-            Craftsmanship that <span className="text-[color:var(--accent-strong)]">endures</span>
+            Craftsmanship that <span className="text-[color:var(--gold)]">endures</span>
           </h2>
           <p className="mt-3 max-w-lg text-muted">
             More than fashion — a tradition of excellence, personally tailored to you.
@@ -171,14 +178,14 @@ export default async function Home() {
           {luxuryFeatures.map((feature) => (
             <div
               key={feature.title}
-              className="group rounded-2xl border border-[color:var(--border)] bg-[rgba(10,18,39,0.4)] p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(212,160,23,0.2)] hover:shadow-[0_20px_50px_rgba(4,10,24,0.3)]"
+              className="group rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.15)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(212,160,23,0.08)] text-[color:var(--accent-strong)] transition-all duration-300 group-hover:bg-[rgba(212,160,23,0.18)] group-hover:scale-110">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(201,168,76,0.06)] text-[color:var(--gold)] transition-all duration-300 group-hover:bg-[rgba(201,168,76,0.12)] group-hover:scale-110">
                 <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d={feature.icon} />
                 </svg>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-white">{feature.title}</h3>
+              <h3 className="mt-5 text-lg font-bold text-[color:var(--rich-black)]">{feature.title}</h3>
               <p className="mt-2 text-sm leading-7 text-muted">{feature.copy}</p>
             </div>
           ))}
@@ -188,12 +195,12 @@ export default async function Home() {
       {/* ═══════════════════════════════════════
          TESTIMONIALS
          ═══════════════════════════════════════ */}
-      <section className="relative border-t border-[color:var(--border)] bg-[rgba(8,16,32,0.2)]">
+      <section className="relative border-t border-[rgba(var(--ink-rgb),0.06)] bg-white/40">
         <div className="section-shell py-16 md:py-24">
           <div className="mb-12 flex flex-col items-center text-center">
             <span className="section-badge">Kind words</span>
             <h2 className="mt-4 text-3xl font-black md:text-5xl">
-              What our <span className="text-[color:var(--accent-strong)]">patrons say</span>
+              What our <span className="text-[color:var(--gold)]">patrons say</span>
             </h2>
             <p className="mt-3 max-w-lg text-muted">
               Real stories from those who trust Claireville for their most treasured pieces.
@@ -203,25 +210,25 @@ export default async function Home() {
             {testimonials.map((t) => (
               <div
                 key={t.name}
-                className="group relative overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[rgba(10,18,39,0.5)] p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(212,160,23,0.25)] hover:shadow-[0_20px_50px_rgba(4,10,24,0.3)]"
+                className="group relative overflow-hidden rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.15)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
               >
-                <div className="absolute -right-4 -top-4 text-7xl font-black leading-none text-[rgba(212,160,23,0.06)]">
+                <div className="absolute -right-4 -top-4 text-7xl font-black leading-none text-[rgba(201,168,76,0.04)]">
                   &ldquo;
                 </div>
                 <div className="flex gap-0.5">
                   {Array.from({ length: t.rating }).map((_, j) => (
-                    <svg key={j} className="h-4 w-4 text-[color:var(--accent-strong)]" viewBox="0 0 24 24" fill="currentColor">
+                    <svg key={j} className="h-4 w-4 text-[color:var(--gold)]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                   ))}
                 </div>
                 <p className="mt-4 text-sm leading-7 text-muted">&ldquo;{t.text}&rdquo;</p>
-                <div className="mt-6 flex items-center gap-3 border-t border-[color:var(--border)] pt-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(212,160,23,0.12)] text-sm font-bold text-[color:var(--accent-strong)]">
+                <div className="mt-6 flex items-center gap-3 border-t border-[rgba(var(--ink-rgb),0.06)] pt-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(201,168,76,0.10)] text-sm font-bold text-[color:var(--gold)]">
                     {t.name.split(" ").map(n => n[0]).join("")}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">{t.name}</p>
+                    <p className="text-sm font-bold text-[color:var(--rich-black)]">{t.name}</p>
                     <p className="text-xs text-muted">{t.role}</p>
                   </div>
                 </div>
@@ -255,14 +262,14 @@ export default async function Home() {
           ].map((feature) => (
             <div
               key={feature.title}
-              className="group rounded-2xl border border-[color:var(--border)] bg-[rgba(10,18,39,0.3)] p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(212,160,23,0.2)] hover:shadow-[0_20px_50px_rgba(4,10,24,0.3)]"
+              className="group rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.15)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(212,160,23,0.08)] text-[color:var(--accent-strong)] transition-all duration-300 group-hover:bg-[rgba(212,160,23,0.18)] group-hover:scale-110">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(201,168,76,0.06)] text-[color:var(--gold)] transition-all duration-300 group-hover:bg-[rgba(201,168,76,0.12)] group-hover:scale-110">
                 <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d={feature.icon} />
                 </svg>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-white">{feature.title}</h3>
+              <h3 className="mt-5 text-lg font-bold text-[color:var(--rich-black)]">{feature.title}</h3>
               <p className="mt-2 text-sm leading-7 text-muted">{feature.copy}</p>
             </div>
           ))}
@@ -274,16 +281,16 @@ export default async function Home() {
          ═══════════════════════════════════════ */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,16,32,0.95)_0%,rgba(58,46,10,0.5)_50%,rgba(8,16,32,0.9)_100%)]" />
-          <div className="absolute left-1/2 top-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(212,160,23,0.08),transparent_70%)]" />
-          <div className="absolute left-1/4 top-1/4 -z-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle,rgba(240,200,64,0.05),transparent_70%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(var(--scrim-rgb),0.7)_0%,rgba(201,168,76,0.12)_50%,rgba(var(--scrim-rgb),0.65)_100%)]" />
+          <div className="absolute left-1/2 top-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.12),transparent_70%)]" />
+          <div className="absolute left-1/4 top-1/4 -z-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.08),transparent_70%)]" />
         </div>
         <div className="section-shell flex flex-col items-center py-20 text-center md:py-28">
           <span className="section-badge">Get started</span>
           <h2 className="mt-4 max-w-2xl text-3xl font-black md:text-5xl">
             Ready to experience
             <br />
-            <span className="text-[color:var(--accent-strong)]">true luxury?</span>
+            <span className="text-[color:var(--gold)]">true luxury?</span>
           </h2>
           <p className="mt-4 max-w-md text-muted">
             Browse our collections, book a personal styling consultation, or visit our boutique 
@@ -309,11 +316,11 @@ export default async function Home() {
       {/* ═══════════════════════════════════════
          STAY CONNECTED
          ═══════════════════════════════════════ */}
-      <section className="border-t border-[color:var(--border)]">
+      <section className="border-t border-[rgba(var(--ink-rgb),0.06)]">
         <div className="section-shell flex flex-col items-center py-12 text-center md:py-16">
           <span className="section-badge">Stay connected</span>
           <h2 className="mt-4 max-w-2xl text-2xl font-black md:text-4xl">
-            Follow <span className="text-[color:var(--accent-strong)]">Claireville</span>
+            Follow <span className="text-[color:var(--gold)]">Claireville</span>
           </h2>
           <p className="mt-3 max-w-md text-muted">
             Be the first to experience new collections, exclusive previews, and behind-the-scenes 
@@ -324,14 +331,14 @@ export default async function Home() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-[rgba(212,160,23,0.2)] bg-[rgba(212,160,23,0.06)] px-5 py-2.5 text-sm font-bold text-[color:var(--accent-strong)] transition hover:bg-[rgba(212,160,23,0.12)] hover:border-[rgba(212,160,23,0.4)]"
+              className="inline-flex items-center gap-2 rounded-full border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.04)] px-5 py-2.5 text-sm font-bold text-[color:var(--gold)] transition hover:bg-[rgba(201,168,76,0.08)] hover:border-[rgba(201,168,76,0.30)]"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
               WhatsApp
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[rgba(10,18,39,0.5)] px-5 py-2.5 text-sm font-bold text-muted transition hover:bg-[rgba(10,18,39,0.8)] hover:text-white"
+              className="inline-flex items-center gap-2 rounded-full border border-[rgba(var(--ink-rgb),0.08)] bg-white/60 px-5 py-2.5 text-sm font-bold text-muted transition hover:bg-white/90 hover:text-[color:var(--rich-black)]"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               Visit our boutique
@@ -375,12 +382,12 @@ async function CollectionsSection() {
   );
 
   return (
-    <section className="relative border-t border-[color:var(--border)] bg-[rgba(8,16,32,0.2)]">
+    <section className="relative border-t border-[rgba(var(--ink-rgb),0.06)] bg-white/40">
       <div className="section-shell py-16 md:py-24">
         <div className="mb-12 flex flex-col items-center text-center">
           <span className="section-badge">Our collections</span>
           <h2 className="mt-4 text-3xl font-black md:text-5xl">
-            Luxury <span className="text-[color:var(--accent-strong)]">curated for you</span>
+            Luxury <span className="text-[color:var(--gold)]">curated for you</span>
           </h2>
           <p className="mt-3 max-w-lg text-muted">
             Click on any collection to browse its pieces. Add to cart or view full details — all from one place.

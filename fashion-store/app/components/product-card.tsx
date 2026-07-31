@@ -6,6 +6,7 @@ import { type Product, formatCurrency } from "../data/store";
 import { QuickViewModal } from "./quick-view-modal";
 import { useCart } from "./cart-context";
 import { ProductImage } from "./product-image";
+import { GoldShimmerButton } from "./gold-shimmer-button";
 
 interface ProductCardProps {
   product: Product;
@@ -17,7 +18,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <>
-      <article className="glass-surface group overflow-hidden rounded-[1.75rem] p-4 transition hover:-translate-y-1">
+      <article className="glass-surface card-gold-hover group overflow-hidden rounded-[1.75rem] p-4 hover:-translate-y-1">
         <Link href={`/products/${product.slug}`} className="block">
           <div className="grid-pattern rounded-[1.25rem] p-3">
             <ProductImage
@@ -33,12 +34,12 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="mt-4 space-y-3">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[color:var(--accent-strong)]">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">
                 {product.category}
               </p>
-              <h2 className="mt-1 text-xl font-black">{product.name}</h2>
+              <h2 className="mt-1 text-xl font-black text-[color:var(--rich-black)]">{product.name}</h2>
             </div>
-            <p className="rounded-full bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-black uppercase text-[color:var(--accent-strong)]">
+            <p className="rounded-full bg-[rgba(201,168,76,0.10)] px-3 py-1 text-xs font-black uppercase text-[color:var(--gold)]">
               {product.badge}
             </p>
           </div>
@@ -46,7 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <p className="text-sm leading-7 text-muted">{product.description}</p>
 
           <div className="flex items-center justify-between gap-3">
-            <p className="text-lg font-black text-[color:var(--accent-strong)]">
+            <p className="text-lg font-black text-[color:var(--gold)]">
               {formatCurrency(product.price)}
             </p>
             <p className="text-sm font-semibold text-muted">
@@ -62,13 +63,12 @@ export function ProductCard({ product }: ProductCardProps) {
             >
               Details
             </button>
-            <button
-              type="button"
+            <GoldShimmerButton
               onClick={() => addToCart(product)}
               className="button-primary px-4 py-2 text-sm"
             >
               Add to cart
-            </button>
+            </GoldShimmerButton>
           </div>
         </div>
       </article>

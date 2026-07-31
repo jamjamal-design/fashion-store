@@ -20,16 +20,16 @@ const companyHighlights = [
 export default function AboutPage() {
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="surface-glow grid gap-8 rounded-[2rem] border border-[color:var(--border)] bg-[rgba(255,250,243,0.82)] p-6 shadow-[0_30px_80px_rgba(29,37,48,0.08)] backdrop-blur-xl md:grid-cols-[0.95fr_1.05fr] md:p-10">
+      <section className="surface-glow grid gap-8 rounded-[2rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-6 shadow-[0_30px_80px_rgba(var(--ink-rgb),0.06)] md:grid-cols-[0.95fr_1.05fr] md:p-10">
         <div className="space-y-6">
           <span className="section-badge">About the business</span>
           <div className="space-y-4">
-            <h1 className="max-w-2xl text-4xl font-black tracking-tight text-[color:var(--foreground)] md:text-6xl">
+            <h1 className="max-w-2xl text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-6xl">
               Meet the CEO and the story behind Claireville.
             </h1>
             <p className="max-w-xl text-base leading-8 text-muted md:text-lg">
               Claireville is a modern fashion business shaped around confidence, convenience, and carefully
-              chosen pieces. The brand is guided by its CEO&apos;s vision to make premium style feel approachable,
+              chosen pieces. The brand is guided by its CEO's vision to make premium style feel approachable,
               polished, and personal for every customer.
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function AboutPage() {
         <div className="grid gap-4">
           <div className="glass-surface overflow-hidden rounded-[1.75rem] p-4">
             <div className="grid gap-4 md:grid-cols-[0.95fr_1.05fr]">
-              <div className="rounded-[1.25rem] bg-[rgba(10,18,39,0.72)] p-4">
+              <div className="rounded-[1.25rem] bg-white/80 p-4">
                 <Image
                   src="/logo.png"
                   alt="Claireville logo"
@@ -65,7 +65,7 @@ export default function AboutPage() {
                   priority
                 />
                 <div className="mt-4 space-y-2">
-                  <p className="text-sm font-black uppercase tracking-[0.18em] text-[color:var(--accent-strong)]">
+                  <p className="text-sm font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">
                     Brand identity
                   </p>
                   <p className="text-sm leading-7 text-muted">
@@ -99,36 +99,36 @@ export default function AboutPage() {
       <section className="mt-10 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="glass-surface rounded-[1.75rem] p-6">
           <span className="section-badge">CEO vision</span>
-          <h2 className="mt-4 text-3xl font-black">Leadership with a clear point of view</h2>
+          <h2 className="mt-4 text-3xl font-black text-[color:var(--rich-black)]">Leadership with a clear point of view</h2>
           <p className="mt-3 text-muted leading-7">
-            The CEO of Claireville focuses becoming Africa’s leading luxury fashion house, recognized globally for creating timeless fashion, unforgettable bridal couture, and premium lifestyle services that inspire generations and also focuses on building a fashion business that feels premium without becoming difficult to shop. Every touch point is designed to support product discovery, trustworthy ordering, and strong customer service.
+            The CEO of Claireville focuses becoming Africa&rsquo;s leading luxury fashion house, recognized globally for creating timeless fashion, unforgettable bridal couture, and premium lifestyle services that inspire generations and also focuses on building a fashion business that feels premium without becoming difficult to shop. Every touch point is designed to support product discovery, trustworthy ordering, and strong customer service.
           </p>
         </div>
 
         <div className="glass-surface rounded-[1.75rem] p-6">
           <span className="section-badge">OUR story</span>
-          <h2 className="mt-4 text-3xl font-black">A boutique built for modern shopping</h2>
+          <h2 className="mt-4 text-3xl font-black text-[color:var(--rich-black)]">A boutique built for modern shopping</h2>
           <p className="mt-3 text-muted leading-7">
             Claireville is a luxury fashion house dedicated to creating timeless elegance through exceptional craftsmanship and innovative design.
             <br />
             <br />
-            We believe fashion is more than clothing—it’s an expression of confidence, beauty, and individuality. Every piece we create is carefully designed with premium fabrics, exquisite detailing, and impeccable finishing.
+            We believe fashion is more than clothing&mdash;it&rsquo;s an expression of confidence, beauty, and individuality. Every piece we create is carefully designed with premium fabrics, exquisite detailing, and impeccable finishing.
             <br />
             <br />
-            From breathtaking bridal gowns and bespoke couture to ready-to-wear collections, men’s fashion, children’s wear, authentic coral beads, luxury accessories, and professional garment care, Claireville is your complete destination for style and elegance.
+            From breathtaking bridal gowns and bespoke couture to ready-to-wear collections, men&rsquo;s fashion, children&rsquo;s wear, authentic coral beads, luxury accessories, and professional garment care, Claireville is your complete destination for style and elegance.
             <br />
             <br />
-            Whether it’s your wedding day, a special celebration, a corporate event, or everyday sophistication, we are committed to making every client look and feel extraordinary.
+            Whether it&rsquo;s your wedding day, a special celebration, a corporate event, or everyday sophistication, we are committed to making every client look and feel extraordinary.
           </p>
           <p className="mt-4 text-muted leading-7">
             The business is designed to serve customers who want elegant products, simple navigation, and a clear path from inspiration to purchase.
-            Claireville… Addicted to Style.
+            Claireville&hellip; Addicted to Style.
           </p>
         </div>
 
         <div className="glass-surface rounded-[1.75rem] p-6">
           <span className="section-badge">OUR mission</span>
-          <h2 className="mt-4 text-3xl font-black">To become Africa’s leading luxury fashion house</h2>
+          <h2 className="mt-4 text-3xl font-black text-[color:var(--rich-black)]">To become Africa&rsquo;s leading luxury fashion house</h2>
           <p className="mt-3 text-muted leading-7">
             Claireville is a luxury fashion house creating bespoke fashion, ready-to-wear collections, authentic coral beads, premium accessories, and professional garment care for women, men, and children. The business is designed to serve customers who want elegant products, simple navigation, and a clear path from inspiration to purchase.
             We aim to create world-class fashion and luxury lifestyle experiences through exceptional craftsmanship, creativity, and personalized service, empowering every client to express confidence, elegance, and individuality.
@@ -137,11 +137,11 @@ export default function AboutPage() {
 
         <div className="glass-surface rounded-[1.75rem] p-6">
           <span className="section-badge">OUR promise</span>
-          <h2 className="mt-4 text-3xl font-black">To exceed expectations and create lasting impressions</h2>
+          <h2 className="mt-4 text-3xl font-black text-[color:var(--rich-black)]">To exceed expectations and create lasting impressions</h2>
           <p className="mt-3 text-muted leading-7">
-            Every Claireville creation is thoughtfully crafted to celebrate your unique style and life’s most memorable moments. From your dream wedding gown to bespoke couture, luxury accessories, and garment care, we are dedicated to delivering excellence, elegance, and unforgettable experiences.
+            Every Claireville creation is thoughtfully crafted to celebrate your unique style and life&rsquo;s most memorable moments. From your dream wedding gown to bespoke couture, luxury accessories, and garment care, we are dedicated to delivering excellence, elegance, and unforgettable experiences.
           </p>
-          <p className="mt-4 text-muted  font-bold leading-7">
+          <p className="mt-4 text-muted font-bold leading-7">
             Made to be Seen. Impossible to Ignore.
           </p>
         </div>

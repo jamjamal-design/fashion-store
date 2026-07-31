@@ -82,7 +82,7 @@ export default function BlogPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Blog & News</span>
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl">Stories from the atelier</h1>
+            <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Stories from the atelier</h1>
             <p className="max-w-2xl text-muted">
               Discover the latest from Claireville — style guides, behind-the-scenes stories, collection
               previews, and everything happening at the intersection of luxury and craftsmanship.
@@ -98,7 +98,7 @@ export default function BlogPage() {
         {blogPosts.map((post) => (
           <article
             key={post.slug}
-            className="group rounded-[1.75rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.4)] overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(212,160,23,0.2)] hover:shadow-[0_20px_50px_rgba(4,10,24,0.3)]"
+            className="group rounded-[1.75rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.15)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
           >
             <div className="grid-pattern p-3">
               <Image
@@ -111,18 +111,18 @@ export default function BlogPage() {
             </div>
             <div className="p-6 pt-2">
               <div className="flex items-center gap-3 text-xs font-bold">
-                <span className="rounded-full bg-[color:var(--accent-soft)] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[color:var(--accent-strong)]">
+                <span className="rounded-full bg-[rgba(201,168,76,0.08)] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[color:var(--gold)]">
                   {post.category}
                 </span>
                 <span className="text-muted">{post.date}</span>
               </div>
-              <h2 className="mt-3 text-lg font-black text-white group-hover:text-[color:var(--accent-strong)] transition-colors">
+              <h2 className="mt-3 text-lg font-black text-[color:var(--rich-black)] group-hover:text-[color:var(--gold)] transition-colors">
                 {post.title}
               </h2>
               <p className="mt-2 text-sm leading-7 text-muted">{post.excerpt}</p>
-              <div className="mt-4 flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] pt-4">
+              <div className="mt-4 flex items-center justify-between border-t border-[rgba(var(--ink-rgb),0.06)] pt-4">
                 <span className="text-xs text-muted">By {post.author}</span>
-                <span className="text-xs font-bold text-[color:var(--accent-strong)] group-hover:underline">
+                <span className="text-xs font-bold text-[color:var(--gold)] group-hover:underline">
                   Read more →
                 </span>
               </div>
@@ -131,9 +131,9 @@ export default function BlogPage() {
         ))}
       </section>
 
-      <section className="mt-12 rounded-[2rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.3)] p-8 text-center">
+      <section className="mt-12 rounded-[2rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/60 p-8 text-center">
         <span className="section-badge">Stay in the loop</span>
-        <h2 className="mt-4 text-2xl font-black md:text-3xl">Never miss a story</h2>
+        <h2 className="mt-4 text-2xl font-black text-[color:var(--rich-black)] md:text-3xl">Never miss a story</h2>
         <p className="mx-auto mt-3 max-w-md text-muted">
           Get the latest Claireville news, style tips, and exclusive previews delivered straight to your
           inbox or WhatsApp.

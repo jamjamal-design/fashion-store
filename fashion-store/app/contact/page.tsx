@@ -15,7 +15,7 @@ export default function ContactPage() {
     <div className="section-shell py-8 md:py-12">
       <div className="space-y-4">
         <span className="section-badge">Contact</span>
-        <h1 className="text-4xl font-black tracking-tight md:text-5xl">Contact the store</h1>
+        <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Contact the store</h1>
         <p className="max-w-2xl text-muted">
           Reach out for product help, order questions, payment confirmation, or custom support.
         </p>
@@ -23,15 +23,15 @@ export default function ContactPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="glass-surface rounded-[2rem] p-6">
-          <h2 className="text-2xl font-black">Support channels</h2>
+          <h2 className="text-2xl font-black text-[color:var(--rich-black)]">Support channels</h2>
           <div className="mt-4 grid gap-4">
             {[
               ["WhatsApp", "Fastest response for order tracking and product questions."],
               ["Email", "Send invoices, receipt attachments, or wholesale inquiries."],
               ["Store hours", "Monday to Saturday, 9:00 AM to 7:00 PM."],
             ].map(([title, copy]) => (
-              <div key={title} className="rounded-[1.25rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4">
-                <p className="font-bold">{title}</p>
+              <div key={title} className="rounded-[1.25rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4">
+                <p className="font-bold text-[color:var(--rich-black)]">{title}</p>
                 <p className="mt-1 text-sm text-muted">{copy}</p>
               </div>
             ))}
@@ -44,22 +44,22 @@ export default function ContactPage() {
 
         <form onSubmit={handleSubmit} className="glass-surface rounded-[2rem] p-6 md:p-8">
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Name
               <input className="input-field" placeholder="Your name" required />
             </label>
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Email
               <input type="email" className="input-field" placeholder="you@example.com" required />
             </label>
           </div>
 
-          <label className="mt-4 grid gap-2 text-sm font-semibold">
+          <label className="mt-4 grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
             Subject
             <input className="input-field" placeholder="Order support, product inquiry, or custom request" required />
           </label>
 
-          <label className="mt-4 grid gap-2 text-sm font-semibold">
+          <label className="mt-4 grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
             Message
             <textarea className="input-field min-h-40 resize-y" placeholder="How can we help?" required />
           </label>
@@ -74,7 +74,7 @@ export default function ContactPage() {
           </div>
 
           {submitted ? (
-            <p className="mt-4 rounded-2xl border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4 text-sm font-semibold text-[color:var(--accent-strong)]">
+            <p className="mt-4 rounded-2xl border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.04)] p-4 text-sm font-semibold text-[color:var(--gold)]">
               Message captured in the UI. Connect this form to your backend or email service when you are ready.
             </p>
           ) : null}

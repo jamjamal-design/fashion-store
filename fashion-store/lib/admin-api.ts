@@ -157,51 +157,30 @@ export async function listOrders() {
 }
 
 export async function loginAdmin(email: string, password: string) {
-  // Try local API route first (reads from .env.local)
-  try {
-    const response = await fetch("/api/admin/login", {
+  // Authenticate against the Express server so the JWT we store is the same
+  // token the admin endpoints (products, orders, uploads) actually validate.
+  // A previous "local API route first" path returned a base64 token that the
+  // server rejected with 401 on every subsequent admin action.
+  const result = await requestJson<{
+    token: string;
+    admin: { id: string; name: string; email: string; role: AdminSession["role"]; status: string };
+  }>(
+    "/admin/login",
+    {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
-    });
+    },
+    false,
+  );
 
-    if (response.ok) {
-      const result = await response.json();
-      saveAdminSession({
-        adminId: result.admin.id,
-        email: result.admin.email,
-        role: result.admin.role,
-        token: result.token,
-      });
-      return result;
-    }
+  saveAdminSession({
+    adminId: result.admin.id,
+    email: result.admin.email,
+    role: result.admin.role,
+    token: result.token,
+  });
 
-    // If local API fails, try the remote server as fallback
-    const errorText = await response.text();
-    throw new Error(errorText || "Login failed");
-  } catch {
-    // Fallback: try the remote server API
-    const result = await requestJson<{
-      token: string;
-      admin: { id: string; name: string; email: string; role: AdminSession["role"]; status: string };
-    }>(
-      "/admin/login",
-      {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      },
-      false,
-    );
-
-    saveAdminSession({
-      adminId: result.admin.id,
-      email: result.admin.email,
-      role: result.admin.role,
-      token: result.token,
-    });
-
-    return result;
-  }
+  return result;
 }
 
 export function logoutAdmin() {

@@ -7,6 +7,10 @@ import { getDatabaseConfig } from "./config/database";
 
 async function bootstrap() {
   try {
+    if (!process.env.ADMIN_JWT_SECRET) {
+      throw new Error("ADMIN_JWT_SECRET is required");
+    }
+
     const { uri, dbName } = getDatabaseConfig();
     const port = Number(process.env.PORT || 4000);
 

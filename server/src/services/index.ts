@@ -218,8 +218,18 @@ export async function verifyAdminCredentials(email: string, password: string) {
   return admin;
 }
 
+function getAdminJwtSecret() {
+  const secret = process.env.ADMIN_JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("ADMIN_JWT_SECRET is required");
+  }
+
+  return secret;
+}
+
 export function signAdminToken(payload: { adminId: string; email: string; role: AdminRole }) {
-  const secret = process.env.ADMIN_JWT_SECRET ?? "fashion-store-admin-secret";
+  const secret = getAdminJwtSecret();
   const expiresIn = (process.env.ADMIN_JWT_EXPIRES_IN ?? "7d") as jwt.SignOptions["expiresIn"];
 
   return jwt.sign(payload, secret, {
@@ -228,7 +238,7 @@ export function signAdminToken(payload: { adminId: string; email: string; role: 
 }
 
 export function verifyAdminToken(token: string) {
-  const secret = process.env.ADMIN_JWT_SECRET ?? "fashion-store-admin-secret";
+  const secret = getAdminJwtSecret();
 
   return jwt.verify(token, secret) as {
     adminId: string;

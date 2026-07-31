@@ -244,7 +244,7 @@ export default function AdminPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-4">
             <span className="section-badge">Admin dashboard</span>
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl">Manage products and customer support</h1>
+            <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Manage products and customer support</h1>
             <p className="max-w-2xl text-muted">
               Add, edit, and delete products while searching for customers and reviewing uploaded payment receipts.
             </p>
@@ -259,7 +259,7 @@ export default function AdminPage() {
         <section className="glass-surface rounded-[2rem] p-6 md:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-black">Product editor</h2>
+              <h2 className="text-2xl font-black text-[color:var(--rich-black)]">Product editor</h2>
               <p className="text-sm text-muted">Use the form below to add or update catalog items.</p>
             </div>
             {editingId ? (
@@ -277,7 +277,7 @@ export default function AdminPage() {
           </div>
 
           <form onSubmit={handleSave} className="mt-6 grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)] md:col-span-2">
               Product name
               <input
                 className="input-field"
@@ -287,7 +287,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Category
               <select
                 className="input-field"
@@ -302,7 +302,7 @@ export default function AdminPage() {
               </select>
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Price
               <input
                 type="number"
@@ -313,7 +313,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Badge
               <input
                 className="input-field"
@@ -322,7 +322,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Rating
               <input
                 type="number"
@@ -333,7 +333,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Reviews
               <input
                 type="number"
@@ -343,7 +343,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)] md:col-span-2">
               Description
               <textarea
                 className="input-field min-h-28 resize-y"
@@ -353,7 +353,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)] md:col-span-2">
               Cloudinary image URL
               <div className="grid gap-3">
                 <input
@@ -378,13 +378,13 @@ export default function AdminPage() {
                     width={900}
                     height={520}
                     unoptimized
-                    className="h-48 w-full rounded-[1.1rem] object-cover shadow-[0_18px_40px_rgba(4,10,24,0.35)]"
+                    className="h-48 w-full rounded-[1.1rem] object-cover shadow-[0_18px_40px_rgba(var(--ink-rgb),0.08)]"
                   />
                 ) : null}
               </div>
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)] md:col-span-2">
               Details, colors, sizes
               <textarea
                 className="input-field min-h-24 resize-y"
@@ -396,7 +396,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Colors
               <input
                 className="input-field"
@@ -406,7 +406,7 @@ export default function AdminPage() {
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
               Sizes
               <input
                 className="input-field"
@@ -433,7 +433,7 @@ export default function AdminPage() {
 
         <div className="space-y-6">
           <section className="glass-surface rounded-[2rem] p-6">
-            <h2 className="text-2xl font-black">Customer search</h2>
+            <h2 className="text-2xl font-black text-[color:var(--rich-black)]">Customer search</h2>
             <input
               className="input-field mt-4"
               placeholder="Search by name, phone, email, or order ID"
@@ -442,27 +442,27 @@ export default function AdminPage() {
             />
             <div className="mt-4 grid gap-3">
               {filteredCustomers.map((customer) => (
-                <div key={customer.orderId} className="rounded-[1.25rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4 text-sm">
-                  <p className="font-bold">{customer.name}</p>
+                <div key={customer.orderId} className="rounded-[1.25rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4 text-sm">
+                  <p className="font-bold text-[color:var(--rich-black)]">{customer.name}</p>
                   <p className="text-muted">{customer.email}</p>
                   <p className="text-muted">{customer.phone}</p>
-                  <p className="mt-2 font-semibold text-[color:var(--accent-strong)]">{customer.orderId} · {customer.status}</p>
+                  <p className="mt-2 font-semibold text-[color:var(--gold)]">{customer.orderId} · {customer.status}</p>
                 </div>
               ))}
             </div>
           </section>
 
           <section className="glass-surface rounded-[2rem] p-6">
-            <h2 className="text-2xl font-black">Payment receipt review</h2>
+            <h2 className="text-2xl font-black text-[color:var(--rich-black)]">Payment receipt review</h2>
             <div className="mt-4 grid gap-3">
               {orders.map((receipt) => (
-                <div key={receipt.orderId} className="rounded-[1.25rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4 text-sm">
+                <div key={receipt.orderId} className="rounded-[1.25rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4 text-sm">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-bold">{receipt.customer}</p>
+                      <p className="font-bold text-[color:var(--rich-black)]">{receipt.customer}</p>
                       <p className="text-muted">{receipt.orderId}</p>
                     </div>
-                    <p className="font-black text-[color:var(--accent-strong)]">{formatCurrency(receipt.amount)}</p>
+                    <p className="font-black text-[color:var(--gold)]">{formatCurrency(receipt.amount)}</p>
                   </div>
                   <p className="mt-2 text-muted">{receipt.status}</p>
                 </div>
@@ -471,7 +471,7 @@ export default function AdminPage() {
           </section>
 
           <section className="glass-surface rounded-[2rem] p-6">
-            <h2 className="text-2xl font-black">Catalog overview</h2>
+            <h2 className="text-2xl font-black text-[color:var(--rich-black)]">Catalog overview</h2>
             <input
               className="input-field mt-4"
               placeholder="Search admin catalog"
@@ -480,10 +480,10 @@ export default function AdminPage() {
             />
             <div className="mt-4 grid gap-3">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="rounded-[1.25rem] border border-[color:var(--border)] bg-[rgba(10,18,39,0.74)] p-4 text-sm">
+                <div key={product.id} className="rounded-[1.25rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4 text-sm">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="font-bold">{product.name}</p>
+                      <p className="font-bold text-[color:var(--rich-black)]">{product.name}</p>
                       <p className="text-muted">{product.category}</p>
                       <p className="text-muted">{formatCurrency(product.price)}</p>
                     </div>
@@ -491,7 +491,7 @@ export default function AdminPage() {
                       <button type="button" onClick={() => handleEdit(product)} className="button-secondary px-4 py-2 text-xs">
                         Edit
                       </button>
-                      <button type="button" onClick={() => handleDelete(product.id)} className="rounded-full border border-[color:var(--border)] px-4 py-2 text-xs font-semibold text-[color:var(--accent-strong)]">
+                      <button type="button" onClick={() => handleDelete(product.id)} className="rounded-full border border-[rgba(201,168,76,0.15)] px-4 py-2 text-xs font-semibold text-[color:var(--gold)]">
                         Delete
                       </button>
                     </div>
