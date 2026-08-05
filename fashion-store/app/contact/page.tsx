@@ -12,7 +12,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="section-shell py-8 md:py-12">
+    <div className="section-shell no-hover py-8 md:py-12">
       <div className="space-y-4">
         <span className="section-badge">Contact</span>
         <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Contact the store</h1>

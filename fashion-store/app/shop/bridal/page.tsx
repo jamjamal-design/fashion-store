@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/app/components/json-ld";
+import { collectionMetadata, collectionBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { whatsappUrl } from "../../data/store";
 import { ProductCard } from "../../components/product-card";
 import { fetchPublicProducts, toLegacyProducts } from "../../../lib/api";
 
-export const metadata: Metadata = {
-  title: "Bridal Collection",
-  description:
-    "Claireville's exclusive bridal collection — bespoke wedding gowns, bridal party attire, and custom-made pieces for your special day.",
-  alternates: { canonical: "/shop/bridal" },
-};
+export const metadata: Metadata = collectionMetadata(
+  "Bridal Collection",
+  "Claireville's exclusive bridal collection — bespoke wedding gowns, bridal party attire, and custom-made pieces for your special day.",
+  "/shop/bridal",
+);
 
 export default async function BridalPage() {
   const apiProducts = await fetchPublicProducts();
@@ -19,7 +20,8 @@ export default async function BridalPage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <JsonLd data={collectionBreadcrumb("Bridal", "/shop/bridal")} />
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Bridal</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { type Product, formatCurrency } from "../data/store";
 
 type CartItem = {
@@ -13,10 +14,11 @@ type CartContextValue = {
   itemCount: number;
   subtotal: number;
   subtotalLabel: string;
+  isHydrated: boolean;
   addToCart: (product: Product, quantity?: number) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
-  clearCart: () => void;
+  clearCart: (options?: { silent?: boolean }) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -39,14 +41,51 @@ function readStoredCart(): CartItem[] {
   }
 }
 
+function cartTotals(items: CartItem[]) {
+  const count = items.reduce((total, entry) => total + entry.quantity, 0);
+  const subtotal = items.reduce(
+    (total, entry) => total + entry.product.price * entry.quantity,
+    0,
+  );
+
+  return { count, subtotalLabel: formatCurrency(subtotal) };
+}
+
+// Luxury cart toast: a bold headline plus a live "N items • Total: …" summary
+// so every cart change surfaces the current count and value.
+function notifyCart(headline: string, items: CartItem[]) {
+  const { count, subtotalLabel } = cartTotals(items);
+  const itemLabel = count === 1 ? "item" : "items";
+
+  toast.success(
+    <div className="cart-toast">
+      <p className="cart-toast__title">{headline}</p>
+      <p className="cart-toast__meta">
+        {count} {itemLabel} • Total: {subtotalLabel}
+      </p>
+    </div>,
+  );
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
   const isHydratedRef = useRef(false);
+  // Always-current snapshot of items so mutations can compute the next cart
+  // (and its toast totals) without relying on stale closure state.
+  const itemsRef = useRef<CartItem[]>([]);
+
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
-      setItems(readStoredCart());
+      const stored = readStoredCart();
+      itemsRef.current = stored;
+      setItems(stored);
       isHydratedRef.current = true;
+      setIsHydrated(true);
     });
 
     return () => window.cancelAnimationFrame(frameId);
@@ -72,38 +111,55 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       itemCount,
       subtotal,
       subtotalLabel: formatCurrency(subtotal),
+      isHydrated,
       addToCart(product, quantity = 1) {
-        setItems((current) => {
-          const existing = current.find((entry) => entry.product.id === product.id);
-
-          if (existing) {
-            return current.map((entry) =>
+        const current = itemsRef.current;
+        const existing = current.find((entry) => entry.product.id === product.id);
+        const next = existing
+          ? current.map((entry) =>
               entry.product.id === product.id
                 ? { ...entry, quantity: entry.quantity + quantity }
                 : entry,
-            );
-          }
+            )
+          : [...current, { product, quantity }];
 
-          return [...current, { product, quantity }];
-        });
+        itemsRef.current = next;
+        setItems(next);
+        notifyCart(`${product.name} added to cart.`, next);
       },
       updateQuantity(productId, quantity) {
-        setItems((current) =>
-          current
-            .map((entry) =>
-              entry.product.id === productId ? { ...entry, quantity } : entry,
-            )
-            .filter((entry) => entry.quantity > 0),
-        );
+        const next = itemsRef.current
+          .map((entry) =>
+            entry.product.id === productId ? { ...entry, quantity } : entry,
+          )
+          .filter((entry) => entry.quantity > 0);
+
+        itemsRef.current = next;
+        setItems(next);
+        notifyCart("Cart updated.", next);
       },
       removeFromCart(productId) {
-        setItems((current) => current.filter((entry) => entry.product.id !== productId));
+        const current = itemsRef.current;
+        const removed = current.find((entry) => entry.product.id === productId);
+        const next = current.filter((entry) => entry.product.id !== productId);
+
+        itemsRef.current = next;
+        setItems(next);
+
+        if (removed) {
+          notifyCart(`${removed.product.name} removed from cart.`, next);
+        }
       },
-      clearCart() {
+      clearCart(options) {
+        itemsRef.current = [];
         setItems([]);
+
+        if (!options?.silent) {
+          toast.info("Your cart is now empty.");
+        }
       },
     };
-  }, [items]);
+  }, [items, isHydrated]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

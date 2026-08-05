@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/app/components/json-ld";
+import { collectionMetadata, collectionBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { whatsappUrl } from "../../data/store";
 import { ProductCard } from "../../components/product-card";
 import { fetchProductsByCategory, toLegacyProducts } from "../../../lib/api";
 
-export const metadata: Metadata = {
-  title: "Real Coral Beads",
-  description:
-    "Claireville's authentic real coral bead accessories — timeless heritage pieces for men and women. Handcrafted coral bead jewelry.",
-  alternates: { canonical: "/shop/real-coral-beads" },
-};
+export const metadata: Metadata = collectionMetadata(
+  "Real Coral Beads",
+  "Claireville's authentic real coral bead accessories — timeless heritage pieces for men and women. Handcrafted coral bead jewelry.",
+  "/shop/real-coral-beads",
+);
 
 export default async function RealCoralBeadsPage() {
   const apiProducts = await fetchProductsByCategory("Real Coral Beads");
@@ -17,7 +18,8 @@ export default async function RealCoralBeadsPage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <JsonLd data={collectionBreadcrumb("Real Coral Beads", "/shop/real-coral-beads")} />
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Real Coral Beads</span>

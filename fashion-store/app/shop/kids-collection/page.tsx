@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/app/components/json-ld";
+import { collectionMetadata, collectionBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { whatsappUrl } from "../../data/store";
 import { ProductCard } from "../../components/product-card";
 import { fetchProductsByCategory, toLegacyProducts } from "../../../lib/api";
 
-export const metadata: Metadata = {
-  title: "Kids Collection",
-  description:
-    "Claireville's kids collection — exquisite children's fashion where luxury meets playful innocence. Premium clothing for children.",
-  alternates: { canonical: "/shop/kids-collection" },
-};
+export const metadata: Metadata = collectionMetadata(
+  "Kids Collection",
+  "Claireville's kids collection — exquisite children's fashion where luxury meets playful innocence. Premium clothing for children.",
+  "/shop/kids-collection",
+);
 
 export default async function KidsCollectionPage() {
   const apiProducts = await fetchProductsByCategory("Kids Collection");
@@ -17,7 +18,8 @@ export default async function KidsCollectionPage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <JsonLd data={collectionBreadcrumb("Kids Collection", "/shop/kids-collection")} />
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Kids Collection</span>

@@ -12,6 +12,11 @@
   --border: rgba(44, 44, 44, 0.08);
   --border-light: rgba(201, 168, 76, 0.15);
 
+  /* Navigation — resting is near-transparent; on scroll it fills with a
+     frosted glass tint. Kept as tokens so dark theme overrides cleanly. */
+  --nav-glass: rgba(245, 240, 232, 0.72);
+  --nav-glass-solid: rgba(245, 240, 232, 0.94);
+
   /* Metallic Gold gradient — identical across themes */
   --gold: #C9A84C;
   --gold-light: #D4AF37;
@@ -207,12 +212,14 @@ a {
 .card-gold-hover {
   transition:
     background 0.4s ease,
-    border-color 0.4s ease,
-    box-shadow 0.4s ease,
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
 }
 
 .card-gold-hover:hover {
+  transform: translateY(-6px) scale(1.015);
   background: var(--gold-gradient) !important;
   border-color: var(--gold) !important;
   box-shadow: 0 24px 60px rgba(201, 168, 76, 0.35) !important;
@@ -242,6 +249,84 @@ a {
   .card-gold-hover {
     transition: background 0.2s ease, color 0.2s ease;
   }
+  .card-gold-hover:hover {
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════
+   CARD LIFT — subtle luxury hover for cards that keep their
+   own surface (imagery/overlay cards) instead of the gold fill.
+   Lifts, scales slightly, warms the border to gold, and casts a
+   soft gold shadow. Reusable across lookbook, contact, related
+   products, and feature cards for a consistent premium feel.
+   ═══════════════════════════════════════ */
+
+.card-lift {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
+  will-change: transform;
+}
+
+.card-lift:hover {
+  transform: translateY(-6px) scale(1.015);
+  border-color: var(--gold) !important;
+  box-shadow:
+    0 22px 55px rgba(201, 168, 76, 0.38),
+    0 0 0 1px rgba(201, 168, 76, 0.30) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-lift {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-lift:hover {
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════
+   NO-HOVER — opt a card out of its hover motion/emphasis. Apply it to
+   the card itself (e.g. a page header banner) or to any ancestor (e.g. a
+   page wrapper) to disable hover across everything inside. Buttons,
+   links and inputs keep their own hover feedback — only the card
+   lift / gold-fill / lift-shadow is neutralised back to the resting look.
+   ═══════════════════════════════════════ */
+
+.no-hover.glass-surface:hover,
+.no-hover .glass-surface:hover {
+  transform: none;
+  box-shadow: 0 8px 32px var(--shadow-color);
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.no-hover.card-gold-hover:hover,
+.no-hover .card-gold-hover:hover {
+  transform: none !important;
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 8px 32px var(--shadow-color) !important;
+}
+.no-hover.card-gold-hover:hover :where(h1, h2, h3, h4, h5, h6, p, span, a, li, svg),
+.no-hover .card-gold-hover:hover :where(h1, h2, h3, h4, h5, h6, p, span, a, li, svg) {
+  color: inherit !important;
+}
+
+.no-hover.card-lift:hover,
+.no-hover .card-lift:hover {
+  transform: none !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 8px 32px var(--shadow-color) !important;
+}
+
+/* Cancel the dark-theme hover lighten on bg-white utility cards too. */
+html[data-theme="dark"] .no-hover[class*="bg-white"]:hover,
+html[data-theme="dark"] .no-hover [class*="bg-white"]:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 /* ═══════════════════════════════════════
@@ -315,16 +400,29 @@ a {
   color: var(--foreground);
   padding: 0.9rem 1rem;
   outline: none;
+  box-shadow: 0 1px 2px rgba(44, 44, 44, 0.03);
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease,
-    background-color 0.2s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    background-color 0.25s ease;
 }
 
-.input-field:focus {
-  border-color: rgba(201, 168, 76, 0.4);
-  box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.08);
+.input-field::placeholder {
+  color: var(--text-light);
+}
+
+.input-field:hover {
+  border-color: rgba(201, 168, 76, 0.35);
+  box-shadow: 0 4px 14px rgba(201, 168, 76, 0.08);
+}
+
+.input-field:focus,
+.input-field:focus-visible {
+  border-color: rgba(201, 168, 76, 0.6);
+  box-shadow:
+    0 0 0 4px rgba(201, 168, 76, 0.14),
+    0 8px 20px rgba(201, 168, 76, 0.12);
   transform: translateY(-1px);
   background: #FFFFFF;
 }
@@ -424,35 +522,23 @@ a {
 }
 
 /* ═══════════════════════════════════════
-   FADE-UP ANIMATIONS (main content)
-   ═══════════════════════════════════════ */
-
-main > .section-shell > * {
-  animation: fadeUp 0.72s ease both;
-}
-
-main > .section-shell > *:nth-child(2) {
-  animation-delay: 0.08s;
-}
-
-main > .section-shell > *:nth-child(3) {
-  animation-delay: 0.16s;
-}
-
-main > .section-shell > *:nth-child(4) {
-  animation-delay: 0.24s;
-}
-
-/* ═══════════════════════════════════════
-   SCROLL REVEAL - animate on scroll
+   SCROLL REVEAL — elegant float-in-from-bottom
+   Elements start slightly below their final position with reduced opacity
+   and float upward into place as they enter the viewport. Each element
+   animates independently via the ScrollReveal component, which sets
+   --reveal-duration, --reveal-delay and --reveal-easing for per-element
+   control. The smooth ease-out curve (no overshoot) gives the refined,
+   premium luxury feel. Transitions only touch opacity + transform so the
+   browser can keep everything on the compositor thread at 60 FPS.
    ═══════════════════════════════════════ */
 
 .reveal {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(28px);
   transition:
-    opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s),
+    transform var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s);
+  will-change: opacity, transform;
 }
 
 .reveal.revealed {
@@ -463,10 +549,11 @@ main > .section-shell > *:nth-child(4) {
 /* Directional reveals */
 .reveal-left {
   opacity: 0;
-  transform: translateX(-30px);
+  transform: translateX(-28px);
   transition:
-    opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s),
+    transform var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s);
+  will-change: opacity, transform;
 }
 
 .reveal-left.revealed {
@@ -476,10 +563,11 @@ main > .section-shell > *:nth-child(4) {
 
 .reveal-right {
   opacity: 0;
-  transform: translateX(30px);
+  transform: translateX(28px);
   transition:
-    opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s),
+    transform var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s);
+  will-change: opacity, transform;
 }
 
 .reveal-right.revealed {
@@ -489,10 +577,11 @@ main > .section-shell > *:nth-child(4) {
 
 .reveal-scale {
   opacity: 0;
-  transform: scale(0.92);
+  transform: scale(0.94);
   transition:
-    opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s),
+    transform var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s);
+  will-change: opacity, transform;
 }
 
 .reveal-scale.revealed {
@@ -500,13 +589,59 @@ main > .section-shell > *:nth-child(4) {
   transform: scale(1);
 }
 
-/* Staggered delays */
-.delay-1 { transition-delay: 0.1s; }
-.delay-2 { transition-delay: 0.2s; }
-.delay-3 { transition-delay: 0.3s; }
-.delay-4 { transition-delay: 0.4s; }
-.delay-5 { transition-delay: 0.5s; }
-.delay-6 { transition-delay: 0.6s; }
+/* Pure fade — used for subtle text elements */
+.reveal-fade {
+  opacity: 0;
+  transition:
+    opacity var(--reveal-duration, 0.7s) var(--reveal-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--reveal-delay, 0s);
+  will-change: opacity;
+}
+
+.reveal-fade.revealed {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════
+   FEATURED MARQUEE — seamless infinite horizontal showcase
+   The track is a flex row containing the product list duplicated end-to-end.
+   Animating translateX to -50% loops perfectly with no jump. Only transform
+   is animated, so the browser keeps it on the compositor thread at 60 FPS.
+   Hovering the marquee pauses the loop so shoppers can interact with cards.
+   ═══════════════════════════════════════ */
+
+.featured-marquee {
+  /* Fade the edges for a refined luxury look */
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.featured-marquee__track {
+  animation: marqueeScroll var(--marquee-duration, 45s) linear infinite;
+  will-change: transform;
+}
+
+.featured-marquee:hover .featured-marquee__track,
+.featured-marquee:focus-within .featured-marquee__track {
+  animation-play-state: paused;
+}
+
+@keyframes marqueeScroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-marquee__track {
+    animation: none;
+    /* Fall back to a horizontally scrollable row for reduced-motion users */
+    overflow-x: auto;
+  }
+}
 
 /* ═══════════════════════════════════════
    FLOATING ANIMATIONS
@@ -669,6 +804,22 @@ main > .section-shell > *:nth-child(4) {
   opacity: 1;
 }
 
+/* Rich cart toast — bold headline + gold count/total summary line.
+   Cart toasts are success-type (white gold-tinted background in both
+   themes), so the title uses fixed dark ink for guaranteed contrast. */
+.cart-toast__title {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #1A1A1A;
+}
+
+.cart-toast__meta {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #A8842E;
+}
+
 /* ═══════════════════════════════════════
    SECTION TRANSITIONS
    ═══════════════════════════════════════ */
@@ -801,6 +952,416 @@ section {
 }
 
 /* ═══════════════════════════════════════
+   LUXURY NAVBAR
+   ═══════════════════════════════════════ */
+
+/* Elegant underline that slides from the center */
+.nav-link {
+  position: relative;
+  display: inline-block;
+  padding-block: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  transition: color 0.35s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background: var(--gold-gradient);
+  transform: translateX(-50%);
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-link:hover,
+.nav-link:focus-visible,
+.nav-link[data-active="true"] {
+  color: var(--rich-black);
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after,
+.nav-link[data-active="true"]::after {
+  width: 100%;
+}
+
+/* Active link gets a subtle gold tint */
+.nav-link[data-active="true"] {
+  color: var(--gold);
+}
+
+/* Logo hover scale */
+.nav-logo {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-logo:hover {
+  transform: scale(1.04);
+}
+
+/* Glassmorphism header — transparent at top, frosted on scroll */
+.site-header {
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.5s ease,
+    backdrop-filter 0.5s ease;
+}
+
+.site-header.is-scrolled {
+  background: var(--nav-glass);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.35);
+  box-shadow: 0 8px 40px rgba(44, 44, 44, 0.06);
+}
+
+/* Gold bottom border that appears only after scrolling */
+.site-header .gold-scroll-border {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--gold-gradient);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.site-header.is-scrolled .gold-scroll-border {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* Desktop dropdown — smooth fade + slide */
+.nav-dropdown {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    visibility 0.35s;
+  pointer-events: none;
+}
+
+.nav-dropdown-item:hover > .nav-dropdown,
+.nav-dropdown-item:focus-within > .nav-dropdown,
+.nav-dropdown-item[data-open="true"] > .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Mobile menu — fade + slide */
+@keyframes mobileMenuFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mobileMenuSlide {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mobile-menu-backdrop {
+  animation: mobileMenuFade 0.3s ease both;
+}
+
+.mobile-menu-panel {
+  animation: mobileMenuSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Mobile dropdown — smooth expand */
+@keyframes mobileDropdownExpand {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 600px;
+  }
+}
+
+.mobile-dropdown {
+  overflow: hidden;
+  animation: mobileDropdownExpand 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Hamburger icon morph */
+.hamburger-line {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+
+.hamburger-open .hamburger-line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger-open .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-open .hamburger-line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Reduced motion for navbar */
+@media (prefers-reduced-motion: reduce) {
+  .nav-link::after,
+  .nav-logo,
+  .site-header,
+  .site-header .gold-scroll-border,
+  .nav-dropdown,
+  .mobile-menu-backdrop,
+  .mobile-menu-panel,
+  .mobile-dropdown,
+  .hamburger-line {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════
+   LUXURY HERO CAMPAIGN
+   ═══════════════════════════════════════ */
+
+/* Cinematic entrance — badge fades in with a slight rise */
+@keyframes heroBadgeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Letter-by-letter headline reveal */
+@keyframes heroLetterIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em) rotateX(45deg);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+    filter: blur(0);
+  }
+}
+
+/* Elegant subtitle fade-in */
+@keyframes heroSubtitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CTA buttons rise in */
+@keyframes heroCtaIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Trust badges fade in last */
+@keyframes heroTrustIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle floating movement for hero image */
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.02);
+  }
+}
+
+/* Gold glow pulse */
+@keyframes goldGlowPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+}
+
+/* Layered gradient drift */
+@keyframes gradientDrift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -15px) scale(1.1);
+  }
+}
+
+.hero-badge {
+  animation: heroBadgeIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: 0.1s;
+}
+
+.hero-letter {
+  display: inline-block;
+  animation: heroLetterIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  will-change: transform, opacity, filter;
+}
+
+.hero-subtitle {
+  animation: heroSubtitleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: 0.5s;
+}
+
+.hero-cta {
+  animation: heroCtaIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: 0.7s;
+}
+
+.hero-trust {
+  animation: heroTrustIn 0.8s ease backwards;
+  animation-delay: 0.9s;
+}
+
+.hero-float {
+  animation: heroFloat 8s ease-in-out infinite;
+}
+
+.hero-glow {
+  animation: goldGlowPulse 6s ease-in-out infinite;
+}
+
+.hero-gradient-drift {
+  animation: gradientDrift 12s ease-in-out infinite;
+}
+
+/* Premium CTA hover — gold shimmer sweep */
+.hero-cta-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-cta-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.25) 50%, transparent 80%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.hero-cta-primary:hover::before {
+  transform: translateX(120%);
+}
+
+.hero-cta-primary:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(201, 168, 76, 0.35);
+}
+
+.hero-cta-secondary {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.hero-cta-secondary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(201, 168, 76, 0.08);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.hero-cta-secondary:hover::after {
+  transform: scaleX(1);
+}
+
+.hero-cta-secondary:hover {
+  transform: translateY(-3px);
+  border-color: rgba(201, 168, 76, 0.4);
+  box-shadow: 0 12px 28px rgba(201, 168, 76, 0.12);
+}
+
+/* Reduced motion for hero */
+@media (prefers-reduced-motion: reduce) {
+  .hero-badge,
+  .hero-letter,
+  .hero-subtitle,
+  .hero-cta,
+  .hero-trust,
+  .hero-float,
+  .hero-glow,
+  .hero-gradient-drift {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ═══════════════════════════════════════
    DARK THEME — neutralize hardcoded light utilities
    Components that hardcode white/beige literals (instead of tokens)
    are remapped here so they read as dark glass. Token-driven elements
@@ -833,11 +1394,22 @@ html[data-theme="dark"] .input-field {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(201, 168, 76, 0.15);
   color: var(--foreground);
+  box-shadow: none;
 }
 
-html[data-theme="dark"] .input-field:focus {
+html[data-theme="dark"] .input-field:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(201, 168, 76, 0.30);
+  box-shadow: 0 4px 14px rgba(201, 168, 76, 0.10);
+}
+
+html[data-theme="dark"] .input-field:focus,
+html[data-theme="dark"] .input-field:focus-visible {
   background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(201, 168, 76, 0.35);
+  border-color: rgba(201, 168, 76, 0.5);
+  box-shadow:
+    0 0 0 4px rgba(201, 168, 76, 0.18),
+    0 8px 20px rgba(201, 168, 76, 0.14);
 }
 
 /* Smooth theme transition on common surfaces (skips images/videos) */
@@ -874,7 +1446,8 @@ footer {
   .reveal,
   .reveal-left,
   .reveal-right,
-  .reveal-scale {
+  .reveal-scale,
+  .reveal-fade {
     opacity: 1;
     transform: none;
   }

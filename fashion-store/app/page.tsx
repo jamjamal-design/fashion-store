@@ -6,6 +6,8 @@ import { HeroSlider } from "./components/hero-slider";
 import { FeaturedProducts } from "./components/featured-products";
 import { CollectionCards } from "./components/collection-cards";
 import { SizeGuide } from "./components/size-guide";
+import { ScrollReveal } from "./components/scroll-reveal";
+import { SectionReveal } from "./components/section-reveal";
 import { fetchFeaturedProducts, fetchPublicProducts, fetchPublicCategories, fetchProductsByCategory, toLegacyProducts, type ApiCategory } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -59,7 +61,7 @@ const luxuryFeatures = [
 async function getHomePageData() {
   try {
     const [featuredProducts, allProducts, categories] = await Promise.all([
-      fetchFeaturedProducts(4),
+      fetchFeaturedProducts(8),
       fetchPublicProducts(),
       fetchPublicCategories(),
     ]);
@@ -79,6 +81,12 @@ export default async function Home() {
 
   const featuredForSlider = allProducts.slice(0, 3);
 
+  // Build a richer featured set for the marquee — combine featured products
+  // with the broader catalogue so the carousel always feels well-stocked.
+  const marqueeProducts = featuredProducts.length >= 6
+    ? featuredProducts
+    : [...featuredProducts, ...allProducts.filter((p) => !featuredProducts.some((f) => f.id === p.id))].slice(0, 10);
+
   // Hero video from Cloudinary (auto-playing, muted, looping background video)
   const heroVideoUrl = `https://res.cloudinary.com/djl9dxnrj/video/upload/v1783891852/video-output-76B9714B-F092-4101-B357-9912D3943A22-1_m9i1nz.mp4`;
 
@@ -86,16 +94,17 @@ export default async function Home() {
     <>
       {/* ═══════════════════════════════════════
          HERO — Full-screen luxury slider with video background
+         (above the fold — uses its own cinematic entrance, no scroll reveal)
          ═══════════════════════════════════════ */}
       <HeroSlider products={featuredForSlider} heroVideoUrl={heroVideoUrl} />
 
       {/* ═══════════════════════════════════════
          BOUTIQUE STORY
          ═══════════════════════════════════════ */}
-      <section className="section-shell py-16 md:py-24">
+      <SectionReveal className="section-shell py-16 md:py-24">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div className="relative">
-            <div className="relative overflow-hidden rounded-2xl">
+            <ScrollReveal direction="left" duration={0.75} className="relative overflow-hidden rounded-2xl">
               <Image
                 src="/about%20company.png"
                 alt="Claireville Luxury Boutique"
@@ -104,9 +113,14 @@ export default async function Home() {
                 className="h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-[rgba(var(--scrim-rgb),0.5)] to-transparent" />
-            </div>
+            </ScrollReveal>
             {/* Floating badge */}
-            <div className="absolute -bottom-4 -right-4 flex items-center gap-3 rounded-xl border border-[rgba(201,168,76,0.20)] bg-white px-5 py-3 backdrop-blur-xl shadow-[0_8px_32px_rgba(var(--ink-rgb),0.08)] md:-bottom-6 md:-right-6">
+            <ScrollReveal
+              direction="scale"
+              delay={0.25}
+              duration={0.65}
+              className="absolute -bottom-4 -right-4 flex items-center gap-3 rounded-xl border border-[rgba(201,168,76,0.20)] bg-white px-5 py-3 backdrop-blur-xl shadow-[0_8px_32px_rgba(var(--ink-rgb),0.08)] md:-bottom-6 md:-right-6"
+            >
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[rgba(201,168,76,0.10)]">
                 <span className="text-2xl font-black text-[color:var(--gold)]">6+</span>
               </div>
@@ -114,36 +128,46 @@ export default async function Home() {
                 <p className="text-sm font-bold text-[color:var(--rich-black)]">Exclusive</p>
                 <p className="text-xs text-muted">Collections</p>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
           <div className="space-y-6">
-            <span className="section-badge">Luxury boutique</span>
-            <h2 className="text-3xl font-black md:text-5xl">
-              Where elegance meets
-              <br />
-              <span className="text-[color:var(--gold)]">individuality</span>
-            </h2>
-            <p className="leading-8 text-muted">
-              Claireville is a luxury fashion house built on the belief that true style is deeply personal. 
-              From bespoke couture to ready-to-wear elegance, every piece in our collection is selected 
-              and crafted to celebrate your unique story.
-            </p>
-            <p className="leading-8 text-muted">
-              Our master artisans blend classical techniques with contemporary vision, creating pieces 
-              that transcend trends — from custom-tailored ensembles to authentic coral bead heirlooms 
-              that carry generations of heritage.
-            </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Link href="/about" className="button-primary px-6 py-2.5">
-                Our heritage
-              </Link>
-              <Link href="/shop" className="button-secondary px-6 py-2.5">
-                Explore collections
-              </Link>
-            </div>
+            <ScrollReveal delay={0.05}>
+              <span className="section-badge">Luxury boutique</span>
+            </ScrollReveal>
+            <ScrollReveal delay={0.15}>
+              <h2 className="text-3xl font-black md:text-5xl">
+                Where elegance meets
+                <br />
+                <span className="text-[color:var(--gold)]">individuality</span>
+              </h2>
+            </ScrollReveal>
+            <ScrollReveal delay={0.25}>
+              <p className="leading-8 text-muted">
+                Claireville is a luxury fashion house built on the belief that true style is deeply personal. 
+                From bespoke couture to ready-to-wear elegance, every piece in our collection is selected 
+                and crafted to celebrate your unique story.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.35}>
+              <p className="leading-8 text-muted">
+                Our master artisans blend classical techniques with contemporary vision, creating pieces 
+                that transcend trends — from custom-tailored ensembles to authentic coral bead heirlooms 
+                that carry generations of heritage.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.45}>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Link href="/about" className="button-primary px-6 py-2.5">
+                  Our heritage
+                </Link>
+                <Link href="/shop" className="button-secondary px-6 py-2.5">
+                  Explore collections
+                </Link>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
-      </section>
+      </SectionReveal>
 
       {/* ═══════════════════════════════════════
          FIND YOUR FIT — Clothing size guide
@@ -159,89 +183,99 @@ export default async function Home() {
       {/* ═══════════════════════════════════════
          FEATURED PIECES
          ═══════════════════════════════════════ */}
-      <FeaturedProducts products={featuredProducts} />
+      <FeaturedProducts products={marqueeProducts} />
 
       {/* ═══════════════════════════════════════
          THE BOUTIQUE EXPERIENCE
          ═══════════════════════════════════════ */}
-      <section className="section-shell py-16 md:py-24">
+      <SectionReveal className="section-shell py-16 md:py-24">
         <div className="mb-12 flex flex-col items-center text-center">
-          <span className="section-badge">The Claireville experience</span>
-          <h2 className="mt-4 text-3xl font-black md:text-5xl">
-            Craftsmanship that <span className="text-[color:var(--gold)]">endures</span>
-          </h2>
-          <p className="mt-3 max-w-lg text-muted">
-            More than fashion — a tradition of excellence, personally tailored to you.
-          </p>
+          <ScrollReveal>
+            <span className="section-badge">The Claireville experience</span>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <h2 className="mt-4 text-3xl font-black md:text-5xl">
+              Craftsmanship that <span className="text-[color:var(--gold)]">endures</span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <p className="mt-3 max-w-lg text-muted">
+              More than fashion — a tradition of excellence, personally tailored to you.
+            </p>
+          </ScrollReveal>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
-          {luxuryFeatures.map((feature) => (
-            <div
-              key={feature.title}
-              className="group rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.15)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(201,168,76,0.06)] text-[color:var(--gold)] transition-all duration-300 group-hover:bg-[rgba(201,168,76,0.12)] group-hover:scale-110">
-                <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d={feature.icon} />
-                </svg>
+          {luxuryFeatures.map((feature, i) => (
+            <ScrollReveal key={feature.title} delay={0.15 + i * 0.12}>
+              <div className="card-gold-hover group rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-7">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(201,168,76,0.06)] text-[color:var(--gold)] transition-all duration-300 group-hover:bg-[rgba(201,168,76,0.12)] group-hover:scale-110">
+                  <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d={feature.icon} />
+                  </svg>
+                </div>
+                <h3 className="mt-5 text-lg font-bold text-[color:var(--rich-black)]">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted">{feature.copy}</p>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-[color:var(--rich-black)]">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-7 text-muted">{feature.copy}</p>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
-      </section>
+      </SectionReveal>
 
       {/* ═══════════════════════════════════════
          TESTIMONIALS
          ═══════════════════════════════════════ */}
-      <section className="relative border-t border-[rgba(var(--ink-rgb),0.06)] bg-white/40">
+      <SectionReveal className="relative border-t border-[rgba(var(--ink-rgb),0.06)] bg-white/40">
         <div className="section-shell py-16 md:py-24">
           <div className="mb-12 flex flex-col items-center text-center">
-            <span className="section-badge">Kind words</span>
-            <h2 className="mt-4 text-3xl font-black md:text-5xl">
-              What our <span className="text-[color:var(--gold)]">patrons say</span>
-            </h2>
-            <p className="mt-3 max-w-lg text-muted">
-              Real stories from those who trust Claireville for their most treasured pieces.
-            </p>
+            <ScrollReveal>
+              <span className="section-badge">Kind words</span>
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <h2 className="mt-4 text-3xl font-black md:text-5xl">
+                What our <span className="text-[color:var(--gold)]">patrons say</span>
+              </h2>
+            </ScrollReveal>
+            <ScrollReveal delay={0.2}>
+              <p className="mt-3 max-w-lg text-muted">
+                Real stories from those who trust Claireville for their most treasured pieces.
+              </p>
+            </ScrollReveal>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="group relative overflow-hidden rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.15)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
-              >
-                <div className="absolute -right-4 -top-4 text-7xl font-black leading-none text-[rgba(201,168,76,0.04)]">
-                  &ldquo;
-                </div>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <svg key={j} className="h-4 w-4 text-[color:var(--gold)]" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="mt-4 text-sm leading-7 text-muted">&ldquo;{t.text}&rdquo;</p>
-                <div className="mt-6 flex items-center gap-3 border-t border-[rgba(var(--ink-rgb),0.06)] pt-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(201,168,76,0.10)] text-sm font-bold text-[color:var(--gold)]">
-                    {t.name.split(" ").map(n => n[0]).join("")}
+            {testimonials.map((t, i) => (
+              <ScrollReveal key={t.name} delay={0.15 + i * 0.12}>
+                <div className="card-gold-hover group relative overflow-hidden rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-6">
+                  <div className="absolute -right-4 -top-4 text-7xl font-black leading-none text-[rgba(201,168,76,0.04)]">
+                    &ldquo;
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-[color:var(--rich-black)]">{t.name}</p>
-                    <p className="text-xs text-muted">{t.role}</p>
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: t.rating }).map((_, j) => (
+                      <svg key={j} className="h-4 w-4 text-[color:var(--gold)]" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className="mt-4 text-sm leading-7 text-muted">&ldquo;{t.text}&rdquo;</p>
+                  <div className="mt-6 flex items-center gap-3 border-t border-[rgba(var(--ink-rgb),0.06)] pt-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(201,168,76,0.10)] text-sm font-bold text-[color:var(--gold)]">
+                      {t.name.split(" ").map(n => n[0]).join("")}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[color:var(--rich-black)]">{t.name}</p>
+                      <p className="text-xs text-muted">{t.role}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
-      </section>
+      </SectionReveal>
 
       {/* ═══════════════════════════════════════
          SERVICES / VALUE PROPS
          ═══════════════════════════════════════ */}
-      <section className="section-shell py-16 md:py-20">
+      <SectionReveal className="section-shell py-16 md:py-20">
         <div className="grid gap-6 md:grid-cols-3">
           {[
             {
@@ -259,93 +293,108 @@ export default async function Home() {
               copy: "From your first inquiry to post-purchase care, our team provides white-glove service through WhatsApp and direct contact.",
               icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
             },
-          ].map((feature) => (
-            <div
-              key={feature.title}
-              className="group rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.15)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(201,168,76,0.06)] text-[color:var(--gold)] transition-all duration-300 group-hover:bg-[rgba(201,168,76,0.12)] group-hover:scale-110">
-                <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d={feature.icon} />
-                </svg>
+          ].map((feature, i) => (
+            <ScrollReveal key={feature.title} delay={i * 0.12}>
+              <div className="card-gold-hover group rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-7">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(201,168,76,0.06)] text-[color:var(--gold)] transition-all duration-300 group-hover:bg-[rgba(201,168,76,0.12)] group-hover:scale-110">
+                  <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d={feature.icon} />
+                  </svg>
+                </div>
+                <h3 className="mt-5 text-lg font-bold text-[color:var(--rich-black)]">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted">{feature.copy}</p>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-[color:var(--rich-black)]">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-7 text-muted">{feature.copy}</p>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
-      </section>
+      </SectionReveal>
 
       {/* ═══════════════════════════════════════
          CTA — Book a consultation
          ═══════════════════════════════════════ */}
-      <section className="relative overflow-hidden">
+      <SectionReveal className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(var(--scrim-rgb),0.7)_0%,rgba(201,168,76,0.12)_50%,rgba(var(--scrim-rgb),0.65)_100%)]" />
           <div className="absolute left-1/2 top-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.12),transparent_70%)]" />
           <div className="absolute left-1/4 top-1/4 -z-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.08),transparent_70%)]" />
         </div>
         <div className="section-shell flex flex-col items-center py-20 text-center md:py-28">
-          <span className="section-badge">Get started</span>
-          <h2 className="mt-4 max-w-2xl text-3xl font-black md:text-5xl">
-            Ready to experience
-            <br />
-            <span className="text-[color:var(--gold)]">true luxury?</span>
-          </h2>
-          <p className="mt-4 max-w-md text-muted">
-            Browse our collections, book a personal styling consultation, or visit our boutique 
-            for a bespoke experience.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/shop" className="button-primary px-10 py-3.5 text-base">
-              Explore the collection
-            </Link>
-            <Link
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="button-secondary px-10 py-3.5 text-base"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              Book consultation
-            </Link>
-          </div>
+          <ScrollReveal>
+            <span className="section-badge">Get started</span>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1} duration={0.8}>
+            <h2 className="mt-4 max-w-2xl text-3xl font-black md:text-5xl">
+              Ready to experience
+              <br />
+              <span className="text-[color:var(--gold)]">true luxury?</span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <p className="mt-4 max-w-md text-muted">
+              Browse our collections, book a personal styling consultation, or visit our boutique 
+              for a bespoke experience.
+            </p>
+          </ScrollReveal>
+          <ScrollReveal delay={0.3}>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Link href="/shop" className="button-primary px-10 py-3.5 text-base">
+                Explore the collection
+              </Link>
+              <Link
+                href={whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="button-secondary px-10 py-3.5 text-base"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Book consultation
+              </Link>
+            </div>
+          </ScrollReveal>
         </div>
-      </section>
+      </SectionReveal>
 
       {/* ═══════════════════════════════════════
          STAY CONNECTED
          ═══════════════════════════════════════ */}
-      <section className="border-t border-[rgba(var(--ink-rgb),0.06)]">
+      <SectionReveal className="border-t border-[rgba(var(--ink-rgb),0.06)]">
         <div className="section-shell flex flex-col items-center py-12 text-center md:py-16">
-          <span className="section-badge">Stay connected</span>
-          <h2 className="mt-4 max-w-2xl text-2xl font-black md:text-4xl">
-            Follow <span className="text-[color:var(--gold)]">Claireville</span>
-          </h2>
-          <p className="mt-3 max-w-md text-muted">
-            Be the first to experience new collections, exclusive previews, and behind-the-scenes 
-            content from our atelier.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.04)] px-5 py-2.5 text-sm font-bold text-[color:var(--gold)] transition hover:bg-[rgba(201,168,76,0.08)] hover:border-[rgba(201,168,76,0.30)]"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp
-            </Link>
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-[rgba(var(--ink-rgb),0.08)] bg-white/60 px-5 py-2.5 text-sm font-bold text-muted transition hover:bg-white/90 hover:text-[color:var(--rich-black)]"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              Visit our boutique
-            </Link>
-          </div>
+          <ScrollReveal>
+            <span className="section-badge">Stay connected</span>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <h2 className="mt-4 max-w-2xl text-2xl font-black md:text-4xl">
+              Follow <span className="text-[color:var(--gold)]">Claireville</span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <p className="mt-3 max-w-md text-muted">
+              Be the first to experience new collections, exclusive previews, and behind-the-scenes 
+              content from our atelier.
+            </p>
+          </ScrollReveal>
+          <ScrollReveal delay={0.3}>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                href={whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.04)] px-5 py-2.5 text-sm font-bold text-[color:var(--gold)] transition hover:bg-[rgba(201,168,76,0.08)] hover:border-[rgba(201,168,76,0.30)]"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 rounded-full border border-[rgba(var(--ink-rgb),0.08)] bg-white/60 px-5 py-2.5 text-sm font-bold text-muted transition hover:bg-white/90 hover:text-[color:var(--rich-black)]"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Visit our boutique
+              </Link>
+            </div>
+          </ScrollReveal>
         </div>
-      </section>
+      </SectionReveal>
 
       <script
         type="application/ld+json"
@@ -382,19 +431,27 @@ async function CollectionsSection() {
   );
 
   return (
-    <section className="relative border-t border-[rgba(var(--ink-rgb),0.06)] bg-white/40">
+    <SectionReveal className="relative border-t border-[rgba(var(--ink-rgb),0.06)] bg-white/40">
       <div className="section-shell py-16 md:py-24">
         <div className="mb-12 flex flex-col items-center text-center">
-          <span className="section-badge">Our collections</span>
-          <h2 className="mt-4 text-3xl font-black md:text-5xl">
-            Luxury <span className="text-[color:var(--gold)]">curated for you</span>
-          </h2>
-          <p className="mt-3 max-w-lg text-muted">
-            Click on any collection to browse its pieces. Add to cart or view full details — all from one place.
-          </p>
+          <ScrollReveal>
+            <span className="section-badge">Our collections</span>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <h2 className="mt-4 text-3xl font-black md:text-5xl">
+              Luxury <span className="text-[color:var(--gold)]">curated for you</span>
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <p className="mt-3 max-w-lg text-muted">
+              Click on any collection to browse its pieces. Add to cart or view full details — all from one place.
+            </p>
+          </ScrollReveal>
         </div>
-        <CollectionCards categories={categoriesWithProducts} />
+        <ScrollReveal delay={0.3}>
+          <CollectionCards categories={categoriesWithProducts} />
+        </ScrollReveal>
       </div>
-    </section>
+    </SectionReveal>
   );
 }

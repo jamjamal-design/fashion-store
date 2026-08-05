@@ -20,7 +20,7 @@ export default async function LookbookPage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Lookbook</span>
@@ -46,7 +46,7 @@ export default async function LookbookPage() {
             <Link
               key={product.id || product._id}
               href={`/products/${product.slug}`}
-              className="group relative overflow-hidden rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 transition-all duration-500 hover:-translate-y-1 hover:border-[rgba(201,168,76,0.18)] hover:shadow-[0_20px_50px_rgba(var(--ink-rgb),0.06)]"
+              className="card-lift group relative overflow-hidden rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/80"
             >
               <div className="aspect-[4/5] overflow-hidden">
                 <Image

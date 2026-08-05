@@ -51,27 +51,45 @@ export const productCategories: ProductCategory[] = [
   { name: "Luxury Accessories", slug: "luxury-accessories", description: "Premium finishing touches — from handcrafted bags to signature accents.", count: 20 },
 ];
 
+// Every shop category is surfaced as its own top-level navigation item
+// (the former "Shop" dropdown has been removed in favour of a flat list).
+export const shopCategoryLinks: { href: string; label: string }[] = [
+  { href: "/shop/bespoke-couture", label: "Bespoke Couture" },
+  { href: "/shop/ready-to-wear", label: "Ready-to-Wear" },
+  { href: "/shop/bridal", label: "Bridal" },
+  { href: "/shop/mens-collection", label: "Men's Collection" },
+  { href: "/shop/mens-suit", label: "Men's Suit" },
+  { href: "/shop/womens-wear", label: "Women's Wear" },
+  { href: "/shop/kids-collection", label: "Kids Collection" },
+  { href: "/shop/real-coral-beads", label: "Real Coral Beads" },
+  { href: "/shop/luxury-accessories", label: "Luxury Accessories" },
+];
+
 export const navigationLinks: NavLink[] = [
+  { href: "/", label: "Home" },
+  { href: "/shop", label: "Shop All" },
+  ...shopCategoryLinks,
+  { href: "/lookbook", label: "Lookbook" },
+  { href: "/blog", label: "Blog & News" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+
+// Premium header navigation — minimal, elegant, with a "Shop" dropdown
+// that groups all categories. Used by the luxury site header.
+export const headerNavLinks: NavLink[] = [
   { href: "/", label: "Home" },
   {
     href: "/shop",
     label: "Shop",
     children: [
-      { href: "/shop/bespoke-couture", label: "Bespoke Couture" },
-      { href: "/shop/ready-to-wear", label: "Ready-to-Wear" },
-      { href: "/shop/bridal", label: "Bridal" },
-      { href: "/shop/mens-collection", label: "Men's Collection" },
-      { href: "/shop/mens-suit", label: "Men's Suit" },
-      { href: "/shop/womens-wear", label: "Women's Wear" },
-      { href: "/shop/kids-collection", label: "Kids Collection" },
-      { href: "/shop/real-coral-beads", label: "Real Coral Beads" },
-      { href: "/shop/luxury-accessories", label: "Luxury Accessories" },
+      { href: "/shop", label: "Shop All" },
+      ...shopCategoryLinks,
     ],
   },
   { href: "/lookbook", label: "Lookbook" },
   { href: "/blog", label: "Blog & News" },
   { href: "/about", label: "About" },
-  { href: "/checkout", label: "Checkout" },
   { href: "/contact", label: "Contact" },
 ];
 

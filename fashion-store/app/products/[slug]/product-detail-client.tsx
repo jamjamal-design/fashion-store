@@ -46,7 +46,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 <Link
                   key={item.id || item.slug}
                   href={`/products/${item.slug}`}
-                  className="rounded-3xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-3 transition hover:bg-white/90"
+                  className="card-gold-hover rounded-3xl border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-3"
                 >
                   <ProductImage
                     src={item.image}

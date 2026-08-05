@@ -19,7 +19,7 @@ const companyHighlights = [
 
 export default function AboutPage() {
   return (
-    <div className="section-shell py-8 md:py-12">
+    <div className="section-shell no-hover py-8 md:py-12">
       <section className="surface-glow grid gap-8 rounded-[2rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/80 p-6 shadow-[0_30px_80px_rgba(var(--ink-rgb),0.06)] md:grid-cols-[0.95fr_1.05fr] md:p-10">
         <div className="space-y-6">
           <span className="section-badge">About the business</span>

@@ -1,11 +1,14 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { bankDetails, formatCurrency, whatsappUrl } from "../data/store";
 import { useCart } from "../components/cart-context";
 
 export default function CheckoutPage() {
-  const { items, subtotal, subtotalLabel, clearCart } = useCart();
+  const router = useRouter();
+  const { items, subtotal, subtotalLabel, clearCart, isHydrated } = useCart();
   const [customerName, setCustomerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -16,6 +19,21 @@ export default function CheckoutPage() {
 
   const shipping = subtotal > 0 ? 18 : 0;
   const total = subtotal + shipping;
+
+  // Guard: block direct access to checkout with an empty cart. Wait for the
+  // cart to hydrate from localStorage first so a real cart isn't flagged as
+  // empty on first paint. Skip the redirect right after a successful order
+  // (clearCart empties the cart on submit).
+  useEffect(() => {
+    if (!isHydrated || submitted) {
+      return;
+    }
+
+    if (items.length === 0) {
+      toast.info("Your cart is empty. Please add products before checking out.");
+      router.replace("/shop");
+    }
+  }, [isHydrated, submitted, items.length, router]);
 
   const summaryItems = useMemo(() => items, [items]);
   const orderSummaryText = summaryItems.length
@@ -63,15 +81,59 @@ export default function CheckoutPage() {
     setReceiptName(event.target.files?.[0]?.name ?? "No receipt uploaded");
   }
 
+  // While the cart hydrates, or when it is empty and about to redirect, show a
+  // lightweight placeholder instead of flashing the full (empty) checkout form.
+  if (!submitted && (!isHydrated || items.length === 0)) {
+    return (
+      <div className="section-shell no-hover flex min-h-[60vh] items-center justify-center py-12">
+        <div className="glass-surface rounded-[2rem] p-10 text-center">
+          <span className="section-badge">Checkout</span>
+          <p className="mt-4 text-lg font-bold text-[color:var(--rich-black)]">
+            {isHydrated ? "Your cart is empty." : "Preparing your checkout…"}
+          </p>
+          <p className="mt-2 text-sm text-muted">
+            {isHydrated
+              ? "Redirecting you to the shop so you can add products."
+              : "One moment while we load your order."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
-    clearCart();
-    window.open(whatsappOrderUrl, "_blank", "noopener,noreferrer");
+
+    if (items.length === 0) {
+      toast.error("Your cart is empty. Please add products before checking out.");
+      return;
+    }
+
+    try {
+      // Capture products before the cart is cleared so the "sold" toasts can
+      // use the real product names.
+      const orderedProducts = items.map(({ product }) => product);
+
+      const opened = window.open(whatsappOrderUrl, "_blank", "noopener,noreferrer");
+      if (!opened) {
+        throw new Error("Unable to open WhatsApp window.");
+      }
+
+      setSubmitted(true);
+      clearCart({ silent: true });
+      toast.success("Order placed successfully.");
+
+      // One "sold" toast per product, using the actual product name.
+      orderedProducts.forEach((product) => {
+        toast.success(`${product.name} sold.`);
+      });
+    } catch {
+      toast.error("Unable to place your order.");
+    }
   }
 
   return (
-    <div className="section-shell py-8 md:py-12">
+    <div className="section-shell no-hover py-8 md:py-12">
       <div className="space-y-4">
         <span className="section-badge">Checkout</span>
         <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Place your order and upload payment proof</h1>

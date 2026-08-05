@@ -2,7 +2,17 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "./components/site-footer";
 import { SiteHeader } from "./components/site-header";
+import { JsonLd } from "./components/json-ld";
 import { Providers } from "./providers";
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_DESCRIPTION,
+  DEFAULT_OG_IMAGE,
+  organizationSchema,
+  websiteSchema,
+} from "@/lib/seo";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
@@ -17,37 +27,63 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lumaatelier.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Claireville | Fashion Store",
-    template: "%s | Claireville",
+    default: SITE_TAGLINE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "Modern fashion storefront with product discovery, cart, checkout, admin tools, and payment support.",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   keywords: [
-    "fashion store",
+    "Claireville",
+    "luxury fashion",
+    "bespoke couture",
+    "ready-to-wear",
+    "men's collection",
+    "kids collection",
+    "real coral beads",
+    "luxury accessories",
     "online boutique",
-    "shop products",
-    "checkout with bank transfer",
-    "WhatsApp order support",
+    "Nigerian fashion house",
   ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  alternates: {
+    canonical: "/",
+  },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   openGraph: {
-    title: "Claireville | Fashion Store",
-    description:
-      "Browse products, manage cart checkout, upload payment proof, and send orders through WhatsApp.",
+    title: SITE_TAGLINE,
+    description: SITE_DESCRIPTION,
     url: "/",
-    siteName: "Claireville",
+    siteName: SITE_NAME,
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} — luxury fashion`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Claireville | Fashion Store",
-    description:
-      "Browse products, manage cart checkout, upload payment proof, and send orders through WhatsApp.",
+    title: SITE_TAGLINE,
+    description: SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 
@@ -73,6 +109,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <Providers>
           <div className="relative flex min-h-screen flex-col overflow-hidden">
             {/* Themed ambient gradient background (light beige or dark rich-black) */}

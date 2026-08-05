@@ -1,5 +1,7 @@
 "use client";
 
+import { ScrollReveal } from "./scroll-reveal";
+
 export function SizeGuide() {
   // Size conversion data
   const bustWaistSizes = [
@@ -57,162 +59,182 @@ export function SizeGuide() {
   return (
     <section className="section-shell py-16 md:py-24">
       <div className="mb-12 flex flex-col items-center text-center">
-        <span className="section-badge">Find your fit</span>
-        <h2 className="mt-4 text-3xl font-black md:text-5xl">
-          Clothing <span className="text-[color:var(--gold)]">Size Guide</span>
-        </h2>
-        <p className="mt-3 max-w-xl text-muted">
-          Determine your correct size from your body measurements and see how sizes compare across
-          different countries.
-        </p>
+        <ScrollReveal>
+          <span className="section-badge">Find your fit</span>
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <h2 className="mt-4 text-3xl font-black md:text-5xl">
+            Clothing <span className="text-[color:var(--gold)]">Size Guide</span>
+          </h2>
+        </ScrollReveal>
+        <ScrollReveal delay={0.2}>
+          <p className="mt-3 max-w-xl text-muted">
+            Determine your correct size from your body measurements and see how sizes compare across
+            different countries.
+          </p>
+        </ScrollReveal>
       </div>
 
       <div className="space-y-10">
         {/* ── Section 1: Size Guide (Bust & Waist) ── */}
-        <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
-          <h3 className="text-xl font-bold text-[color:var(--rich-black)] md:text-2xl">
-            Size Guide (Bust &amp; Waist)
-          </h3>
-          <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
-            Find your ideal clothing size by comparing your bust and waist measurements with our US
-            sizing chart.
-          </p>
-          <div className="mt-6 -mx-2 overflow-x-auto px-2">
-            <table className="w-full min-w-[560px] border-collapse text-left">
-              <thead>
-                <tr>
-                  <th className={headClass}>US Size</th>
-                  <th className={headClass}>Letter Size</th>
-                  <th className={headClass}>Bust</th>
-                  <th className={headClass}>Waist</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bustWaistSizes.map((row) => (
-                  <tr key={row.us} className={rowClass}>
-                    <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
-                    <td className={cellClass}>{row.letter}</td>
-                    <td className={cellClass}>{measure(row.bust, row.bustCm)}</td>
-                    <td className={cellClass}>{measure(row.waist, row.waistCm)}</td>
+        <ScrollReveal>
+          <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
+            <h3 className="text-xl font-bold text-[color:var(--rich-black)] md:text-2xl">
+              Size Guide (Bust & Waist)
+            </h3>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
+              Find your ideal clothing size by comparing your bust and waist measurements with our US
+              sizing chart.
+            </p>
+            <div className="mt-6 -mx-2 overflow-x-auto px-2">
+              <table className="w-full min-w-[560px] border-collapse text-left">
+                <thead>
+                  <tr>
+                    <th className={headClass}>US Size</th>
+                    <th className={headClass}>Letter Size</th>
+                    <th className={headClass}>Bust</th>
+                    <th className={headClass}>Waist</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {bustWaistSizes.map((row) => (
+                    <tr key={row.us} className={rowClass}>
+                      <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
+                      <td className={cellClass}>{row.letter}</td>
+                      <td className={cellClass}>{measure(row.bust, row.bustCm)}</td>
+                      <td className={cellClass}>{measure(row.waist, row.waistCm)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* ── Section 2: Numeric Size Guide ── */}
-        <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
-          <h3 className="text-xl font-bold text-[color:var(--rich-black)] md:text-2xl">Numeric Size Guide</h3>
-          <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
-            Another way of showing women&apos;s clothing sizes using numeric sizing.
-          </p>
-          <div className="mt-6 -mx-2 overflow-x-auto px-2">
-            <table className="w-full min-w-[480px] border-collapse text-left">
-              <thead>
-                <tr>
-                  <th className={headClass}>US</th>
-                  <th className={headClass}>Bust</th>
-                  <th className={headClass}>Waist</th>
-                </tr>
-              </thead>
-              <tbody>
-                {numericSizes.map((row) => (
-                  <tr key={row.us} className={rowClass}>
-                    <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
-                    <td className={cellClass}>{measure(row.bust, row.bustCm)}</td>
-                    <td className={cellClass}>{measure(row.waist, row.waistCm)}</td>
+        <ScrollReveal delay={0.1}>
+          <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
+            <h3 className="text-xl font-bold text-[color:var(--rich-black)] md:text-2xl">Numeric Size Guide</h3>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
+              Another way of showing {"women's"} clothing sizes using numeric sizing.
+            </p>
+            <div className="mt-6 -mx-2 overflow-x-auto px-2">
+              <table className="w-full min-w-[480px] border-collapse text-left">
+                <thead>
+                  <tr>
+                    <th className={headClass}>US</th>
+                    <th className={headClass}>Bust</th>
+                    <th className={headClass}>Waist</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {numericSizes.map((row) => (
+                    <tr key={row.us} className={rowClass}>
+                      <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
+                      <td className={cellClass}>{measure(row.bust, row.bustCm)}</td>
+                      <td className={cellClass}>{measure(row.waist, row.waistCm)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* ── Section 3: Equivalent Sizes ── */}
-        <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
-          <h3 className="text-xl font-bold text-[color:var(--rich-black)] md:text-2xl">Equivalent Sizes</h3>
-          <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
-            Different countries use different clothing size systems. The chart below shows their
-            approximate equivalents.
-          </p>
-          <div className="mt-6 -mx-2 overflow-x-auto px-2">
-            <table className="w-full min-w-[480px] border-collapse text-left">
-              <thead>
-                <tr>
-                  <th className={headClass}>US</th>
-                  <th className={headClass}>Europe</th>
-                  <th className={headClass}>UK</th>
-                  <th className={headClass}>Mexico</th>
-                </tr>
-              </thead>
-              <tbody>
-                {equivalentSizes.map((row) => (
-                  <tr key={row.us} className={rowClass}>
-                    <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
-                    <td className={cellClass}>{row.europe}</td>
-                    <td className={cellClass}>{row.uk}</td>
-                    <td className={cellClass}>{row.mexico}</td>
+        <ScrollReveal delay={0.1}>
+          <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
+            <h3 className="text-xl font-bold text-[color:var(--rich-black)] md:text-2xl">Equivalent Sizes</h3>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
+              Different countries use different clothing size systems. The chart below shows their
+              approximate equivalents.
+            </p>
+            <div className="mt-6 -mx-2 overflow-x-auto px-2">
+              <table className="w-full min-w-[480px] border-collapse text-left">
+                <thead>
+                  <tr>
+                    <th className={headClass}>US</th>
+                    <th className={headClass}>Europe</th>
+                    <th className={headClass}>UK</th>
+                    <th className={headClass}>Mexico</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {equivalentSizes.map((row) => (
+                    <tr key={row.us} className={rowClass}>
+                      <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
+                      <td className={cellClass}>{row.europe}</td>
+                      <td className={cellClass}>{row.uk}</td>
+                      <td className={cellClass}>{row.mexico}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
 
       {/* ── Section 4: International Size Conversion ── */}
       <div className="mt-12 flex flex-col items-center text-center">
-        <span className="section-badge">Shop worldwide</span>
-        <h2 className="mt-4 text-3xl font-black md:text-5xl">
-          International <span className="text-[color:var(--gold)]">Size Conversion</span>
-        </h2>
-        <p className="mt-3 max-w-xl text-muted">
-          Compare women&apos;s clothing sizes across major shopping regions so you can order with
-          confidence, wherever you are.
-        </p>
+        <ScrollReveal>
+          <span className="section-badge">Shop worldwide</span>
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <h2 className="mt-4 text-3xl font-black md:text-5xl">
+            International <span className="text-[color:var(--gold)]">Size Conversion</span>
+          </h2>
+        </ScrollReveal>
+        <ScrollReveal delay={0.2}>
+          <p className="mt-3 max-w-xl text-muted">
+            Compare {"women's"} clothing sizes across major shopping regions so you can order with
+            confidence, wherever you are.
+          </p>
+        </ScrollReveal>
       </div>
-      <div className="mt-10 overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
-        <div className="-mx-2 overflow-x-auto px-2">
-          <table className="w-full min-w-[900px] border-collapse text-left">
-            <thead>
-              <tr>
-                <th className={headClass}>US</th>
-                <th className={headClass}>UK</th>
-                <th className={headClass}>Europe (EU)</th>
-                <th className={headClass}>France</th>
-                <th className={headClass}>Italy</th>
-                <th className={headClass}>Australia</th>
-                <th className={headClass}>Japan</th>
-                <th className={headClass}>Korea</th>
-                <th className={headClass}>Mexico</th>
-                <th className={headClass}>Bust</th>
-                <th className={headClass}>Waist</th>
-              </tr>
-            </thead>
-            <tbody>
-              {internationalSizes.map((row) => (
-                <tr key={row.us} className={rowClass}>
-                  <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
-                  <td className={cellClass}>{row.uk}</td>
-                  <td className={cellClass}>{row.eu}</td>
-                  <td className={cellClass}>{row.france}</td>
-                  <td className={cellClass}>{row.italy}</td>
-                  <td className={cellClass}>{row.australia}</td>
-                  <td className={cellClass}>{row.japan}</td>
-                  <td className={cellClass}>{row.korea}</td>
-                  <td className={cellClass}>{row.mexico}</td>
-                  <td className={cellClass}>{measure(row.bust, row.bustCm)}</td>
-                  <td className={cellClass}>{measure(row.waist, row.waistCm)}</td>
+      <ScrollReveal delay={0.3}>
+        <div className="mt-10 overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
+          <div className="-mx-2 overflow-x-auto px-2">
+            <table className="w-full min-w-[900px] border-collapse text-left">
+              <thead>
+                <tr>
+                  <th className={headClass}>US</th>
+                  <th className={headClass}>UK</th>
+                  <th className={headClass}>Europe (EU)</th>
+                  <th className={headClass}>France</th>
+                  <th className={headClass}>Italy</th>
+                  <th className={headClass}>Australia</th>
+                  <th className={headClass}>Japan</th>
+                  <th className={headClass}>Korea</th>
+                  <th className={headClass}>Mexico</th>
+                  <th className={headClass}>Bust</th>
+                  <th className={headClass}>Waist</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {internationalSizes.map((row) => (
+                  <tr key={row.us} className={rowClass}>
+                    <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.us}</td>
+                    <td className={cellClass}>{row.uk}</td>
+                    <td className={cellClass}>{row.eu}</td>
+                    <td className={cellClass}>{row.france}</td>
+                    <td className={cellClass}>{row.italy}</td>
+                    <td className={cellClass}>{row.australia}</td>
+                    <td className={cellClass}>{row.japan}</td>
+                    <td className={cellClass}>{row.korea}</td>
+                    <td className={cellClass}>{row.mexico}</td>
+                    <td className={cellClass}>{measure(row.bust, row.bustCm)}</td>
+                    <td className={cellClass}>{measure(row.waist, row.waistCm)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-xs text-[color:var(--text-light)]">
+            Conversions are approximate. Measurements may vary slightly by brand and garment cut.
+          </p>
         </div>
-        <p className="mt-4 text-xs text-[color:var(--text-light)]">
-          Conversions are approximate. Measurements may vary slightly by brand and garment cut.
-        </p>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }

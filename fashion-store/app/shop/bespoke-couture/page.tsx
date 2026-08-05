@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/app/components/json-ld";
+import { collectionMetadata, collectionBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { whatsappUrl } from "../../data/store";
 import { ProductCard } from "../../components/product-card";
 import { fetchProductsByCategory, toLegacyProducts } from "../../../lib/api";
 
-export const metadata: Metadata = {
-  title: "Bespoke Couture Collection",
-  description:
-    "Claireville's bespoke couture collection — custom-made, tailored-to-perfection outfits crafted for the individual. Made-to-measure luxury fashion.",
-  alternates: {
-    canonical: "/shop/bespoke-couture",
-  },
-};
+export const metadata: Metadata = collectionMetadata(
+  "Bespoke Couture Collection",
+  "Claireville's bespoke couture collection — custom-made, tailored-to-perfection outfits crafted for the individual. Made-to-measure luxury fashion.",
+  "/shop/bespoke-couture",
+);
 
 export default async function BespokeCouturePage() {
   const apiProducts = await fetchProductsByCategory("Bespoke Couture");
@@ -19,7 +18,8 @@ export default async function BespokeCouturePage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <JsonLd data={collectionBreadcrumb("Bespoke Couture", "/shop/bespoke-couture")} />
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Bespoke Couture</span>

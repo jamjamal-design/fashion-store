@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/app/components/json-ld";
+import { collectionMetadata, collectionBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { whatsappUrl } from "../../data/store";
 import { ProductCard } from "../../components/product-card";
 import { fetchProductsByCategory, toLegacyProducts } from "../../../lib/api";
 
-export const metadata: Metadata = {
-  title: "Ready-to-Wear Collection",
-  description:
-    "Claireville's ready-to-wear collection — curated luxury pieces designed for effortless elegance, off the rack. Shop premium fashion online.",
-  alternates: { canonical: "/shop/ready-to-wear" },
-};
+export const metadata: Metadata = collectionMetadata(
+  "Ready-to-Wear Collection",
+  "Claireville's ready-to-wear collection — curated luxury pieces designed for effortless elegance, off the rack. Shop premium fashion online.",
+  "/shop/ready-to-wear",
+);
 
 export default async function ReadyToWearPage() {
   const apiProducts = await fetchProductsByCategory("Ready-to-Wear");
@@ -17,7 +18,8 @@ export default async function ReadyToWearPage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <JsonLd data={collectionBreadcrumb("Ready-to-Wear", "/shop/ready-to-wear")} />
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Ready-to-Wear</span>

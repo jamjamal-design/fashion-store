@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/app/components/json-ld";
+import { collectionMetadata, collectionBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { whatsappUrl } from "../../data/store";
 import { ProductCard } from "../../components/product-card";
 import { fetchPublicProducts, toLegacyProducts } from "../../../lib/api";
 
-export const metadata: Metadata = {
-  title: "Women's Wear Collection",
-  description:
-    "Claireville's women's wear collection — elegant dresses, luxurious coats, and premium ready-to-wear pieces for the modern woman.",
-  alternates: { canonical: "/shop/womens-wear" },
-};
+export const metadata: Metadata = collectionMetadata(
+  "Women's Wear Collection",
+  "Claireville's women's wear collection — elegant dresses, luxurious coats, and premium ready-to-wear pieces for the modern woman.",
+  "/shop/womens-wear",
+);
 
 export default async function WomensWearPage() {
   const apiProducts = await fetchPublicProducts();
@@ -19,7 +20,8 @@ export default async function WomensWearPage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <JsonLd data={collectionBreadcrumb("Women's Wear", "/shop/womens-wear")} />
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Women&apos;s Wear</span>

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/app/components/json-ld";
+import { collectionMetadata, collectionBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { whatsappUrl } from "../../data/store";
 import { ProductCard } from "../../components/product-card";
 import { fetchPublicProducts, toLegacyProducts } from "../../../lib/api";
 
-export const metadata: Metadata = {
-  title: "Men's Suit Collection",
-  description:
-    "Claireville's men's suit collection — bespoke tailoring, premium fabrics, and sharp silhouettes for the modern gentleman.",
-  alternates: { canonical: "/shop/mens-suit" },
-};
+export const metadata: Metadata = collectionMetadata(
+  "Men's Suit Collection",
+  "Claireville's men's suit collection — bespoke tailoring, premium fabrics, and sharp silhouettes for the modern gentleman.",
+  "/shop/mens-suit",
+);
 
 export default async function MensSuitPage() {
   const apiProducts = await fetchPublicProducts();
@@ -19,7 +20,8 @@ export default async function MensSuitPage() {
 
   return (
     <div className="section-shell py-8 md:py-12">
-      <section className="glass-surface rounded-[2rem] p-6 md:p-8">
+      <JsonLd data={collectionBreadcrumb("Men's Suit", "/shop/mens-suit")} />
+      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <span className="section-badge">Men&apos;s Suit</span>

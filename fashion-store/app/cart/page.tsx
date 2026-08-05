@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import { useCart } from "../components/cart-context";
 import { formatCurrency } from "../data/store";
 
@@ -9,9 +10,10 @@ export default function CartPage() {
   const { items, subtotal, subtotalLabel, updateQuantity, removeFromCart, clearCart } = useCart();
   const shipping = subtotal > 0 ? 18 : 0;
   const total = subtotal + shipping;
+  const isEmpty = items.length === 0;
 
   return (
-    <div className="section-shell py-8 md:py-12">
+    <div className="section-shell no-hover py-8 md:py-12">
       <div className="space-y-4">
         <span className="section-badge">Cart</span>
         <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Review your order</h1>
@@ -105,10 +107,28 @@ export default function CartPage() {
           </div>
 
           <div className="mt-5 flex flex-col gap-3">
-            <Link href="/checkout" className="button-primary w-full">
-              Proceed to checkout
-            </Link>
-            <button type="button" onClick={clearCart} className="button-secondary w-full">
+            {isEmpty ? (
+              <button
+                type="button"
+                onClick={() =>
+                  toast.info("Your cart is empty. Please add products before checking out.")
+                }
+                className="button-primary w-full cursor-not-allowed opacity-50"
+                aria-disabled="true"
+              >
+                Proceed to checkout
+              </button>
+            ) : (
+              <Link href="/checkout" className="button-primary w-full">
+                Proceed to checkout
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => clearCart()}
+              disabled={isEmpty}
+              className="button-secondary w-full disabled:cursor-not-allowed disabled:opacity-50"
+            >
               Clear cart
             </button>
           </div>
