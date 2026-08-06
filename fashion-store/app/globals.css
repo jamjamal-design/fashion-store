@@ -821,6 +821,41 @@ html[data-theme="dark"] .no-hover [class*="bg-white"]:hover {
 }
 
 /* ═══════════════════════════════════════
+   MEASUREMENTS PAGE — TAB PANEL ANIMATIONS
+   Panels fade in with a gentle rise and slight scale for a refined,
+   luxury feel. The sliding gold indicator on the tab switcher is
+   handled inline via Tailwind's transition-transform.
+   ═══════════════════════════════════════ */
+
+.measurement-panel {
+  animation: measurementPanelIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.measurement-panel-enter {
+  animation: measurementPanelIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes measurementPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .measurement-panel,
+  .measurement-panel-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════
    SECTION TRANSITIONS
    ═══════════════════════════════════════ */
 

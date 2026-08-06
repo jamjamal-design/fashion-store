@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { bankDetails, formatCurrency, whatsappUrl } from "../data/store";
 import { useCart } from "../components/cart-context";
+import { generateOrderReference, isValidOrderReference, loadMeasurements, type SavedMeasurements } from "../../lib/measurements";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function CheckoutPage() {
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [receiptName, setReceiptName] = useState("No receipt uploaded");
   const [submitted, setSubmitted] = useState(false);
+  const [savedMeasurements, setSavedMeasurements] = useState<SavedMeasurements | null>(null);
 
   const shipping = subtotal > 0 ? 18 : 0;
   const total = subtotal + shipping;
@@ -35,6 +37,26 @@ export default function CheckoutPage() {
     }
   }, [isHydrated, submitted, items.length, router]);
 
+  // Load saved measurements so they're available during checkout
+  useEffect(() => {
+    const measurements = loadMeasurements();
+    if (measurements) {
+      setSavedMeasurements(measurements);
+    }
+  }, []);
+
+  // Auto-generate a unique order reference (CV-XXXX) on first load
+  useEffect(() => {
+    if (!isHydrated || orderReference) {
+      return;
+    }
+    // Only auto-generate once per checkout session
+    const existing = orderReference;
+    if (!existing) {
+      setOrderReference(generateOrderReference());
+    }
+  }, [isHydrated, orderReference]);
+
   const summaryItems = useMemo(() => items, [items]);
   const orderSummaryText = summaryItems.length
     ? summaryItems
@@ -44,6 +66,32 @@ export default function CheckoutPage() {
         )
         .join("\n")
     : "No products in cart";
+
+  // Build the measurements text block for the WhatsApp message
+  const measurementsText = useMemo(() => {
+    if (!savedMeasurements) {
+      return "";
+    }
+
+    const typeLabel = savedMeasurements.type === "men" ? "Men's" : "Women's";
+    const valuesLines = Object.entries(savedMeasurements.values)
+      .filter(([, value]) => value && value.trim() !== "")
+      .map(([field, value]) => `  ${field}: ${value} in`)
+      .join("\n");
+
+    const photoLines = savedMeasurements.photos.length
+      ? savedMeasurements.photos.map((p) => `  ${p.name} (${p.size} bytes)`).join("\n")
+      : "  None";
+
+    return [
+      `${typeLabel} Measurements:`,
+      valuesLines || "  Not provided",
+      "",
+      "Measurement reference photos:",
+      photoLines,
+    ].join("\n");
+  }, [savedMeasurements]);
+
   const orderMessage = useMemo(() => {
     const lines = [
       "Hello Claireville, I am sending my order details and payment proof.",
@@ -60,11 +108,16 @@ export default function CheckoutPage() {
       `Payment proof file: ${receiptName}`,
     ];
 
+    if (measurementsText) {
+      lines.push("", measurementsText);
+    }
+
     return lines.join("\n");
   }, [
     customerName,
     deliveryAddress,
     emailAddress,
+    measurementsText,
     orderReference,
     orderSummaryText,
     phoneNumber,
@@ -79,6 +132,15 @@ export default function CheckoutPage() {
 
   function handleReceiptChange(event: ChangeEvent<HTMLInputElement>) {
     setReceiptName(event.target.files?.[0]?.name ?? "No receipt uploaded");
+  }
+
+  function handleReferenceChange(event: ChangeEvent<HTMLInputElement>) {
+    // Keep the reference read-only — always auto-generated
+    // If user types, only accept CV-XXXX format
+    const value = event.target.value.toUpperCase();
+    if (value === "" || isValidOrderReference(value)) {
+      setOrderReference(value);
+    }
   }
 
   // While the cart hydrates, or when it is empty and about to redirect, show a
@@ -176,16 +238,21 @@ export default function CheckoutPage() {
                 required
               />
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
-              Order reference
+            <div className="grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
+              <span>Order reference</span>
               <input
-                className="input-field"
-                placeholder="LM-24021"
+                className="input-field bg-[rgba(201,168,76,0.08)] font-black tracking-wider text-[color:var(--gold)]"
+                placeholder="CV-0000"
                 value={orderReference}
-                onChange={(event) => setOrderReference(event.target.value)}
-                required
+                onChange={handleReferenceChange}
+                readOnly
+                aria-readonly="true"
+                title="Auto-generated — unique for every order"
               />
-            </label>
+              <span className="text-[11px] font-normal text-[color:var(--text-light)]">
+                Auto-generated. Unique for every order.
+              </span>
+            </div>
           </div>
 
           <label className="mt-4 grid gap-2 text-sm font-semibold text-[color:var(--rich-black)]">
@@ -198,6 +265,35 @@ export default function CheckoutPage() {
               required
             />
           </label>
+
+          {/* Saved measurements summary */}
+          {savedMeasurements && (
+            <div className="mt-4 rounded-[1.5rem] border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.04)] p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">
+                  {savedMeasurements.type === "men" ? "Men's" : "Women's"} Measurements
+                </p>
+                <span className="rounded-full bg-[rgba(201,168,76,0.12)] px-2.5 py-0.5 text-[10px] font-bold text-[color:var(--gold)]">
+                  Saved ✓
+                </span>
+              </div>
+              <div className="mt-3 grid gap-1.5">
+                {Object.entries(savedMeasurements.values)
+                  .filter(([, value]) => value && value.trim() !== "")
+                  .map(([field, value]) => (
+                    <div key={field} className="flex items-center justify-between text-sm">
+                      <span className="text-muted">{field}</span>
+                      <span className="font-bold text-[color:var(--rich-black)]">{value} in</span>
+                    </div>
+                  ))}
+              </div>
+              {savedMeasurements.photos.length > 0 && (
+                <p className="mt-3 text-xs font-semibold text-[color:var(--text-light)]">
+                  📷 {savedMeasurements.photos.length} reference photo{savedMeasurements.photos.length === 1 ? "" : "s"} attached
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="mt-4 rounded-[1.5rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">
@@ -220,7 +316,7 @@ export default function CheckoutPage() {
 
           {submitted ? (
             <p className="mt-4 rounded-2xl border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.04)] p-4 text-sm font-semibold text-[color:var(--gold)]">
-              Message prepared with customer details, delivery address, products ordered, and total amount.
+              Message prepared with customer details, order reference {orderReference}, measurements, delivery address, products ordered, and total amount.
             </p>
           ) : null}
         </form>
@@ -262,6 +358,18 @@ export default function CheckoutPage() {
                 <span className="font-black text-[color:var(--rich-black)]">Total</span>
                 <span className="text-lg font-black text-[color:var(--gold)]">{formatCurrency(total)}</span>
               </div>
+            </div>
+          </section>
+
+          <section className="glass-surface rounded-[2rem] p-6">
+            <h2 className="text-2xl font-black text-[color:var(--rich-black)]">Order reference</h2>
+            <div className="mt-4 rounded-[1.25rem] border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.06)] p-5 text-center">
+              <p className="text-3xl font-black tracking-[0.1em] text-[color:var(--gold)]">
+                {orderReference || "CV-----"}
+              </p>
+              <p className="mt-2 text-xs text-muted">
+                Use this reference when making payment
+              </p>
             </div>
           </section>
 
