@@ -7,11 +7,13 @@ import { usePathname } from "next/navigation";
 import { headerNavLinks, whatsappUrl } from "../data/store";
 import { useCart } from "./cart-context";
 import { ThemeToggle } from "./theme-toggle";
+import { LuxurySearchModal } from "./luxury-search-modal";
 
 export function SiteHeader() {
   const pathname = usePathname();
   const { itemCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null);
@@ -23,6 +25,7 @@ export function SiteHeader() {
       setIsMenuOpen(false);
       setOpenDropdown(null);
       setOpenMobileDropdown(null);
+      setIsSearchOpen(false);
     });
 
     return () => window.cancelAnimationFrame(frameId);
@@ -70,6 +73,12 @@ export function SiteHeader() {
         setOpenDropdown(null);
         setOpenMobileDropdown(null);
         setIsMenuOpen(false);
+        setIsSearchOpen(false);
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsSearchOpen(true);
       }
     };
 
@@ -93,7 +102,7 @@ export function SiteHeader() {
         <div className="gold-scroll-border" aria-hidden="true" />
 
         {/* Top row: logo + actions */}
-        <div className="section-shell flex items-center justify-between gap-4 py-4 md:py-5">
+        <div className="section-shell flex items-center justify-between gap-5 py-4 md:py-5 lg:py-6">
           {/* Logo */}
           <Link href="/" className="nav-logo flex items-center gap-3 shrink-0" aria-label="Claireville — home">
             <Image
@@ -105,10 +114,10 @@ export function SiteHeader() {
               priority
             />
             <div className="hidden sm:block">
-              <p className="text-sm font-black uppercase tracking-[0.24em] text-[color:var(--gold)]">
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-[color:var(--gold)]">
                 Claireville
               </p>
-              <p className="text-[10px] italic font-bold text-muted">addicted to style</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted">addicted to style</p>
             </div>
           </Link>
 
@@ -116,6 +125,22 @@ export function SiteHeader() {
           <div className="flex items-center gap-2 md:gap-3">
             {/* Theme toggle */}
             <ThemeToggle />
+
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="button-secondary px-3 py-2 text-xs lg:px-4 lg:py-2 lg:text-sm"
+              aria-label="Open search"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+              <span className="hidden lg:inline">Search</span>
+              <span className="hidden rounded-full border border-[rgba(var(--ink-rgb),0.08)] bg-white/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-muted xl:inline">
+                Ctrl K
+              </span>
+            </button>
 
             {/* Cart (always visible) */}
             <Link
@@ -166,7 +191,7 @@ export function SiteHeader() {
 
         {/* Bottom row: elegant category navigation (desktop) */}
         <nav className="hidden lg:block" aria-label="Primary navigation">
-          <ul className="section-shell flex items-center justify-center gap-10 py-3">
+          <ul className="section-shell flex items-center justify-center gap-12 py-3.5 xl:gap-14">
             {headerNavLinks.map((link) => {
               const active = isActive(link.href);
               const dropdownActive = isDropdownActive(link);
@@ -387,6 +412,8 @@ export function SiteHeader() {
           </div>
         </div>
       )}
+
+      <LuxurySearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 }

@@ -85,7 +85,7 @@ export function HeroSlider({ products, heroVideoUrl }: HeroSliderProps) {
   const slide = slides[current];
 
   return (
-    <section className="relative h-screen max-h-[700px] min-h-[500px] overflow-hidden">
+    <section className="relative isolate h-[min(100vh,780px)] min-h-[580px] overflow-hidden md:min-h-[650px]">
       {/* Layered gradients behind the image — luxury campaign backdrop */}
       <div className="pointer-events-none absolute inset-0 z-[5]">
         <div className="hero-gradient-drift absolute -left-20 top-10 h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.12),transparent_70%)]" />
@@ -174,16 +174,16 @@ export function HeroSlider({ products, heroVideoUrl }: HeroSliderProps) {
 
       {/* Content — only shown for product slides */}
       {slide.type === "product" && (
-        <div className="section-shell relative z-20 flex h-full flex-col items-start justify-center py-20">
-          <div key={current}>
+        <div className="section-shell relative z-20 flex h-full flex-col items-start justify-center py-20 md:py-24 lg:py-28">
+          <div key={current} className="max-w-[42rem]">
             <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-[rgba(201,168,76,0.25)] bg-white/70 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[color:var(--gold)] backdrop-blur-sm">
               <span className="h-2 w-2 rounded-full bg-[color:var(--gold)] shadow-[0_0_6px_rgba(201,168,76,0.5)]" />
               {slide.product.badge || "New Collection"}
             </span>
-            <h1 className="mt-6 max-w-3xl text-5xl font-black tracking-tight text-[color:var(--rich-black)] md:text-7xl lg:text-8xl">
+            <h1 className="mt-6 max-w-3xl text-5xl font-semibold tracking-[-0.06em] text-[color:var(--rich-black)] md:text-7xl lg:text-[5.4rem] xl:text-[6.2rem]">
               <AnimatedHeadline text={slide.product.name} />
             </h1>
-            <p className="hero-subtitle mt-4 max-w-xl text-lg leading-8 text-[rgba(var(--ink-rgb),0.7)] md:text-xl">
+            <p className="hero-subtitle mt-5 max-w-xl text-base leading-8 text-[rgba(var(--ink-rgb),0.72)] md:text-lg lg:text-xl">
               {slide.product.description}
             </p>
             <div className="hero-cta mt-8 flex flex-wrap gap-4">
@@ -205,7 +205,7 @@ export function HeroSlider({ products, heroVideoUrl }: HeroSliderProps) {
                 WhatsApp
               </Link>
             </div>
-            <div className="hero-trust mt-10 flex items-center gap-6 text-sm text-[rgba(var(--ink-rgb),0.4)]">
+            <div className="hero-trust mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-[rgba(var(--ink-rgb),0.42)]">
               <span className="flex items-center gap-2">
                 <svg className="h-4 w-4 text-[color:var(--gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 Premium Quality
@@ -225,20 +225,20 @@ export function HeroSlider({ products, heroVideoUrl }: HeroSliderProps) {
 
       {/* Content for video slide — brand message */}
       {slide.type === "video" && (
-        <div className="section-shell relative z-20 flex h-full flex-col items-start justify-center py-20">
-          <div key={current}>
+        <div className="section-shell relative z-20 flex h-full flex-col items-start justify-center py-20 md:py-24 lg:py-28">
+          <div key={current} className="max-w-[44rem]">
             <span className="hero-badge inline-flex items-center gap-2 rounded-full border border-[rgba(201,168,76,0.25)] bg-white/70 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[color:var(--gold)] backdrop-blur-sm">
               <span className="h-2 w-2 rounded-full bg-[color:var(--gold)] shadow-[0_0_6px_rgba(201,168,76,0.5)]" />
               Claireville
             </span>
-            <h1 className="mt-6 max-w-3xl text-5xl font-black tracking-tight text-[color:var(--rich-black)] md:text-7xl lg:text-8xl">
+            <h1 className="mt-6 max-w-3xl text-5xl font-semibold tracking-[-0.06em] text-[color:var(--rich-black)] md:text-7xl lg:text-[5.4rem] xl:text-[6.2rem]">
               <AnimatedHeadline text="Where elegance meets" />
               <br />
               <span className="text-[color:var(--gold)]">
                 <AnimatedHeadline text="individuality" />
               </span>
             </h1>
-            <p className="hero-subtitle mt-4 max-w-xl text-lg leading-8 text-[rgba(var(--ink-rgb),0.7)] md:text-xl">
+            <p className="hero-subtitle mt-5 max-w-xl text-base leading-8 text-[rgba(var(--ink-rgb),0.72)] md:text-lg lg:text-xl">
               Discover our latest collection — curated for those who appreciate the finest craftsmanship.
             </p>
             <div className="hero-cta mt-8 flex flex-wrap gap-4">

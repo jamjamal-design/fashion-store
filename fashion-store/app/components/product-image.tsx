@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 
 type SafeImageProps = {
@@ -13,6 +13,7 @@ type SafeImageProps = {
   sizes?: string;
   priority?: boolean;
   wrapperClassName?: string;
+  style?: CSSProperties;
 };
 
 export function ProductImage({
@@ -25,8 +26,10 @@ export function ProductImage({
   sizes,
   priority,
   wrapperClassName,
+  style,
 }: SafeImageProps) {
   const [hasError, setHasError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   if (!src || hasError) {
     return (
@@ -49,13 +52,21 @@ export function ProductImage({
   if (fill) {
     return (
       <div className={wrapperClassName}>
+        {!isLoaded && (
+          <div
+            className="absolute inset-0 animate-shimmer rounded-[inherit] bg-[rgba(var(--ink-rgb),0.06)]"
+            aria-hidden="true"
+          />
+        )}
         <Image
           src={src}
           alt={alt}
           fill
           sizes={sizes}
           priority={priority}
-          className={className}
+          className={`${className} transition-opacity duration-700 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+          style={style}
+          onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
         />
       </div>
@@ -63,14 +74,25 @@ export function ProductImage({
   }
 
   return (
-    <Image
-      src={src}
-      alt={alt}
-      width={width ?? 560}
-      height={height ?? 560}
-      priority={priority}
-      className={className}
-      onError={() => setHasError(true)}
-    />
+    <div className="relative inline-block overflow-hidden">
+      {!isLoaded && (
+        <div
+          className="absolute inset-0 animate-shimmer rounded-[inherit] bg-[rgba(var(--ink-rgb),0.06)]"
+          style={{ width: width ?? 560, height: height ?? 560 }}
+          aria-hidden="true"
+        />
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        width={width ?? 560}
+        height={height ?? 560}
+        priority={priority}
+        className={`${className} transition-opacity duration-700 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+        style={style}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setHasError(true)}
+      />
+    </div>
   );
 }

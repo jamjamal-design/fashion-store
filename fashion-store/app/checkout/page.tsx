@@ -2,6 +2,7 @@
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "react-toastify";
 import { bankDetails, formatCurrency, whatsappUrl } from "../data/store";
 import { useCart } from "../components/cart-context";
@@ -10,6 +11,7 @@ import { generateOrderReference, isValidOrderReference, loadMeasurements, type S
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, subtotalLabel, clearCart, isHydrated } = useCart();
+  const prefersReducedMotion = useReducedMotion();
   const [customerName, setCustomerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -18,6 +20,7 @@ export default function CheckoutPage() {
   const [receiptName, setReceiptName] = useState("No receipt uploaded");
   const [submitted, setSubmitted] = useState(false);
   const [savedMeasurements, setSavedMeasurements] = useState<SavedMeasurements | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState("bank");
 
   const shipping = subtotal > 0 ? 18 : 0;
   const total = subtotal + shipping;
@@ -99,6 +102,7 @@ export default function CheckoutPage() {
       `Phone number: ${phoneNumber || "Not provided"}`,
       `Email: ${emailAddress || "Not provided"}`,
       `Order reference: ${orderReference || "Not provided"}`,
+      `Payment method: ${paymentMethod === "bank" ? "Bank transfer" : "WhatsApp confirmation"}`,
       `Delivery address: ${deliveryAddress || "Not provided"}`,
       "Products ordered:",
       orderSummaryText,
@@ -122,6 +126,7 @@ export default function CheckoutPage() {
     orderSummaryText,
     phoneNumber,
     receiptName,
+    paymentMethod,
     shipping,
     subtotalLabel,
     total,
@@ -196,12 +201,37 @@ export default function CheckoutPage() {
 
   return (
     <div className="section-shell no-hover py-8 md:py-12">
-      <div className="space-y-4">
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: prefersReducedMotion ? 0 : 0.35 }}
+        className="space-y-4"
+      >
         <span className="section-badge">Checkout</span>
         <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">Place your order and upload payment proof</h1>
         <p className="max-w-2xl text-muted">
           Review the order summary, use the bank account details, then attach a receipt for verification.
         </p>
+      </motion.div>
+
+      <div className="mt-6 grid gap-3 rounded-[1.5rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4 md:grid-cols-3">
+        {[
+          { step: "01", title: "Details", copy: "Enter your contact and delivery information." },
+          { step: "02", title: "Payment", copy: "Choose a payment method and upload proof." },
+          { step: "03", title: "Send", copy: "Submit the order through WhatsApp for confirmation." },
+        ].map((item, index) => (
+          <motion.div
+            key={item.step}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.25, delay: index * 0.05 }}
+            className="rounded-[1.25rem] border border-[rgba(var(--ink-rgb),0.06)] bg-[rgba(201,168,76,0.04)] p-4"
+          >
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-[color:var(--gold)]">{item.step}</p>
+            <p className="mt-1 text-sm font-bold text-[color:var(--rich-black)]">{item.title}</p>
+            <p className="mt-1 text-xs leading-6 text-muted">{item.copy}</p>
+          </motion.div>
+        ))}
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -305,6 +335,37 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          <div className="mt-4 rounded-[1.5rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">
+              Payment method
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {[
+                { value: "bank", title: "Bank transfer", copy: "Use the provided account details and upload proof." },
+                { value: "whatsapp", title: "WhatsApp confirmation", copy: "Send your order details directly to the team." },
+              ].map((option) => {
+                const active = paymentMethod === option.value;
+                return (
+                  <motion.button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setPaymentMethod(option.value)}
+                    whileHover={prefersReducedMotion ? undefined : { y: -2, scale: 1.01 }}
+                    whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+                    className={`rounded-[1.2rem] border p-4 text-left transition ${
+                      active
+                        ? "border-[rgba(201,168,76,0.26)] bg-[rgba(201,168,76,0.08)]"
+                        : "border-[rgba(var(--ink-rgb),0.06)] bg-white/75 hover:border-[rgba(201,168,76,0.18)]"
+                    }`}
+                  >
+                    <p className="text-sm font-bold text-[color:var(--rich-black)]">{option.title}</p>
+                    <p className="mt-1 text-xs leading-6 text-muted">{option.copy}</p>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="mt-6 flex flex-wrap gap-3">
             <button type="submit" className="button-primary">
               Send to WhatsApp
@@ -358,6 +419,19 @@ export default function CheckoutPage() {
                 <span className="font-black text-[color:var(--rich-black)]">Total</span>
                 <span className="text-lg font-black text-[color:var(--gold)]">{formatCurrency(total)}</span>
               </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 rounded-[1.25rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4 text-sm">
+              {[
+                "Luxury order verification",
+                "Secure receipt handling",
+                "Responsive support before dispatch",
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-3 text-muted">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[color:var(--gold)]" aria-hidden="true" />
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
           </section>
 

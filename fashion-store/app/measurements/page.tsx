@@ -1,1367 +1,940 @@
 "use client";
 
-import { useState, useRef, useCallback, type FormEvent, type DragEvent, type ChangeEvent } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
-import { whatsappUrl } from "../data/store";
-import { saveMeasurements, type SavedMeasurements } from "../../lib/measurements";
+import { ScrollReveal } from "../components/scroll-reveal";
+import { saveMeasurements } from "../../lib/measurements";
 
 type TabKey = "men" | "women";
+type MeasurementKind =
+  | "chest"
+  | "waist"
+  | "hips"
+  | "shoulder"
+  | "sleeve"
+  | "neck"
+  | "arm"
+  | "thigh"
+  | "inseam"
+  | "trouser-length"
+  | "back-width"
+  | "bust"
+  | "underbust"
+  | "dress-length"
+  | "skirt-length";
 
-const menMeasurements = [
-  {
-    name: "Chest",
-    description: "Measure around the fullest part of your chest, keeping the tape level under your arms.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 8c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2" />
-        <path d="M4 12c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2" />
-        <path d="M4 16c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2" />
-      </svg>
-    ),
-  },
-  {
-    name: "Waist",
-    description: "Measure around your natural waistline, just above the belly button, keeping the tape snug but not tight.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <ellipse cx="12" cy="12" rx="9" ry="4" />
-        <path d="M3 12v4c0 2.2 4 4 9 4s9-1.8 9-4v-4" />
-      </svg>
-    ),
-  },
-  {
-    name: "Hips",
-    description: "Measure around the fullest part of your hips and seat, keeping the tape parallel to the floor.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3c-3 0-5 2-5 5 0 3 2 5 5 5s5-2 5-5c0-3-2-5-5-5z" />
-        <path d="M5 21c1-4 3.5-6 7-6s6 2 7 6" />
-      </svg>
-    ),
-  },
-  {
-    name: "Inseam",
-    description: "Measure from the top of your inner thigh down to the floor, without shoes.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3v18" />
-        <path d="M8 21h8" />
-        <path d="M12 3c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Sleeve",
-    description: "Measure from the center of the back of your neck, across the shoulder, and down to the wrist.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 8c4 0 6-2 8-2s4 2 8 2" />
-        <path d="M6 8v8c0 2 2 3 4 3s4-1 4-3V8" />
-        <path d="M14 8v8c0 2 2 3 4 3s4-1 4-3V8" />
-      </svg>
-    ),
-  },
-  {
-    name: "Neck",
-    description: "Measure around the base of your neck, keeping one finger between the tape and your neck for comfort.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8 3h8l1 5c0 3-2 5-5 5s-5-2-5-5l1-5z" />
-        <path d="M12 13v8" />
-        <path d="M8 21h8" />
-      </svg>
-    ),
-  },
+type MeasurementGuide = {
+  name: string;
+  kind: MeasurementKind;
+  description: string;
+  tape: string;
+  stance: string;
+  example: string;
+  tips: string[];
+};
+
+const introPills = [
+  "Use a flexible measuring tape.",
+  "Wear fitted clothing or light fabric.",
+  "Stand naturally with relaxed posture.",
+  "Keep the tape level and parallel to the floor.",
+  "Ask someone to help with difficult areas.",
 ];
 
-const womenMeasurements = [
+function createEmptyValues(guides: MeasurementGuide[]) {
+  return guides.reduce<Record<string, string>>((accumulator, guide) => {
+    accumulator[guide.kind] = "";
+    return accumulator;
+  }, {});
+}
+
+const menGuides: MeasurementGuide[] = [
   {
-    name: "Bust",
-    description: "Measure around the fullest part of your bust, keeping the tape level and snug across the back.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 8c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2" />
-        <path d="M4 12c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2" />
-        <path d="M4 16c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2" />
-      </svg>
-    ),
+    name: "Chest",
+    kind: "chest",
+    description:
+      "Wrap the tape around the fullest part of the chest, just under the armpits, and keep it smooth across the back.",
+    tape: "Start at the center of the chest line, wrap around the fullest point, and return to the starting edge without twisting the tape.",
+    stance: "Stand upright with arms relaxed at your sides and shoulders neutral.",
+    example: "The tape should sit level across the back and stay comfortably snug around the chest.",
+    tips: ["Relax your shoulders", "Breathe normally", "Keep the tape snug, not tight"],
   },
   {
     name: "Waist",
-    description: "Measure around your natural waistline, the narrowest part of your torso, keeping the tape relaxed.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <ellipse cx="12" cy="12" rx="9" ry="4" />
-        <path d="M3 12v4c0 2.2 4 4 9 4s9-1.8 9-4v-4" />
-      </svg>
-    ),
+    kind: "waist",
+    description:
+      "Measure around the natural waistline, slightly above the belly button, where the torso bends most naturally.",
+    tape: "Place the tape around the narrowest part of the torso and bring both ends together at the front.",
+    stance: "Stand naturally and do not suck in your stomach.",
+    example: "The tape should remain horizontal and sit smoothly against the body without pinching.",
+    tips: ["Do not suck in your stomach", "Find the narrowest point", "Hold the tape flat all the way around"],
   },
   {
-    name: "Hips",
-    description: "Measure around the fullest part of your hips and seat, approximately 8 inches below your waist.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3c-3 0-5 2-5 5 0 3 2 5 5 5s5-2 5-5c0-3-2-5-5-5z" />
-        <path d="M5 21c1-4 3.5-6 7-6s6 2 7 6" />
-      </svg>
-    ),
-  },
-  {
-    name: "Inseam",
-    description: "Measure from the top of your inner thigh down to the floor, without shoes.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3v18" />
-        <path d="M8 21h8" />
-        <path d="M12 3c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Sleeve",
-    description: "Measure from the center of the back of your neck, across the shoulder, and down to the wrist.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 8c4 0 6-2 8-2s4 2 8 2" />
-        <path d="M6 8v8c0 2 2 3 4 3s4-1 4-3V8" />
-        <path d="M14 8v8c0 2 2 3 4 3s4-1 4-3V8" />
-      </svg>
-    ),
+    name: "Hip",
+    kind: "hips",
+    description:
+      "Measure around the fullest part of the hips and seat, keeping the tape parallel to the floor.",
+    tape: "Wrap the tape around the widest part of the hips and return it to the front at the same level.",
+    stance: "Stand with feet together and weight evenly balanced.",
+    example: "Keep the tape level around the seat so the measurement reflects the fullest point.",
+    tips: ["Stand with feet together", "Measure at the widest point", "Check the tape from the side and back"],
   },
   {
     name: "Shoulder",
-    description: "Measure from the edge of one shoulder across the back to the edge of the other shoulder.",
-    icon: (
-      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 8c4 0 6-2 8-2s4 2 8 2" />
-        <path d="M6 8v8c0 2 2 3 4 3s4-1 4-3V8" />
-      </svg>
-    ),
+    kind: "shoulder",
+    description:
+      "Measure across the top of the shoulders from one shoulder edge to the other.",
+    tape: "Place the tape at the outer edge of one shoulder and run it straight across the back to the opposite shoulder edge.",
+    stance: "Stand straight with the shoulders relaxed and level.",
+    example: "The tape should follow the natural shoulder line and not dip below the upper back.",
+    tips: ["Find the shoulder bone edges", "Keep the tape straight across the back", "Ask someone to help for precision"],
+  },
+  {
+    name: "Sleeve Length",
+    kind: "sleeve",
+    description:
+      "Measure from the center back of the neck, over the shoulder, and down to the wrist bone.",
+    tape: "Start at the center back of the neck, pass over the shoulder, and end at the wrist bone with the arm slightly bent.",
+    stance: "Keep the arm relaxed with a natural bend.",
+    example: "The tape should follow the curve of the shoulder and sleeve path without slack.",
+    tips: ["Keep the arm slightly bent", "Ask for help when possible", "Follow the natural curve of the arm"],
+  },
+  {
+    name: "Neck",
+    kind: "neck",
+    description:
+      "Measure around the base of the neck, leaving a small amount of breathing room for comfort.",
+    tape: "Wrap the tape around the neck base and leave a finger-width gap before joining the ends.",
+    stance: "Stand upright and keep your chin level.",
+    example: "The tape should sit where a collar would naturally rest.",
+    tips: ["Leave space for one finger", "Keep the tape comfortably loose", "Measure where a collar would sit"],
+  },
+  {
+    name: "Arm/Bicep",
+    kind: "arm",
+    description:
+      "Measure around the fullest part of the upper arm, usually at the bicep area.",
+    tape: "Wrap the tape around the thickest part of the upper arm and meet it at the front without squeezing.",
+    stance: "Let the arm hang relaxed at the side or bend it slightly for accuracy.",
+    example: "The tape should remain level and sit comfortably around the upper arm muscle.",
+    tips: ["Do not flex the bicep", "Keep the tape level", "Measure the fullest part of the arm"],
+  },
+  {
+    name: "Thigh",
+    kind: "thigh",
+    description:
+      "Measure around the fullest part of the thigh, usually high on the leg near the crotch area.",
+    tape: "Place the tape around the upper thigh at the widest point and bring it back to the front on the same line.",
+    stance: "Stand with feet slightly apart and weight evenly distributed.",
+    example: "The tape should not angle up or down; keep it parallel to the floor.",
+    tips: ["Stand evenly on both feet", "Find the widest upper-thigh point", "Keep the tape smooth around the leg"],
+  },
+  {
+    name: "Inseam",
+    kind: "inseam",
+    description:
+      "Measure from the top of the inner thigh straight down to the floor with shoes removed.",
+    tape: "Start at the crotch point or a flat book held between the legs, then measure straight down to the floor.",
+    stance: "Stand straight with legs slightly apart for a clear line.",
+    example: "The tape should run vertically from the inner thigh to the floor without slanting.",
+    tips: ["Use a book at the crotch point", "Keep legs slightly apart", "Measure straight, not diagonally"],
+  },
+  {
+    name: "Trouser Length",
+    kind: "trouser-length",
+    description:
+      "Measure from the top of the waistband area down to the desired trouser hem point.",
+    tape: "Start at the top of the trouser waist position and end at the bottom hem point you want.",
+    stance: "Stand tall and keep the legs straight while marking the length.",
+    example: "The tape should track the outer leg line all the way down to the hem level.",
+    tips: ["Decide where you want the trouser to finish", "Measure along the outside leg line", "Keep the tape vertical"],
+  },
+  {
+    name: "Back Width",
+    kind: "back-width",
+    description:
+      "Measure across the upper back between the points where the arms meet the torso.",
+    tape: "Place the tape from one back armhole point to the other, keeping it level across the shoulder blades.",
+    stance: "Stand straight with shoulders relaxed and arms slightly away from the body.",
+    example: "The tape should cross the upper back horizontally, just below the shoulder line.",
+    tips: ["Ask for a helper if possible", "Keep the tape straight across the back", "Do not let it dip below the shoulder blades"],
   },
 ];
 
-const menSizeChart = [
-  { size: "S", chest: "34–36", waist: "28–30", hips: "34–36", sleeve: "32–33" },
-  { size: "M", chest: "38–40", waist: "32–34", hips: "38–40", sleeve: "33–34" },
-  { size: "L", chest: "42–44", waist: "36–38", hips: "42–44", sleeve: "34–35" },
-  { size: "XL", chest: "46–48", waist: "40–42", hips: "46–48", sleeve: "35–36" },
-  { size: "XXL", chest: "50–52", waist: "44–46", hips: "50–52", sleeve: "36–37" },
+const womenGuides: MeasurementGuide[] = [
+  {
+    name: "Bust",
+    kind: "bust",
+    description:
+      "Measure around the fullest part of the bust while keeping the tape level across the back and under the arms.",
+    tape: "Wrap the tape around the fullest part of the bust and bring it back to the front at the same height.",
+    stance: "Stand upright with relaxed shoulders and arms at your sides.",
+    example: "The tape should sit evenly across the back and follow the fullest point of the bust.",
+    tips: ["Wear a well-fitted bra", "Do not pull the tape too tight", "Keep the tape level from front to back"],
+  },
+  {
+    name: "Under Bust",
+    kind: "underbust",
+    description:
+      "Measure directly under the bust where a bra band would normally sit.",
+    tape: "Place the tape snugly around the ribcage directly below the bust and meet it at the front.",
+    stance: "Stand tall and breathe normally without lifting the chest.",
+    example: "The tape should remain parallel to the floor and sit firmly on the ribcage line.",
+    tips: ["Keep the tape firm but comfortable", "Stay level across the back", "Measure just below the bust"],
+  },
+  {
+    name: "Waist",
+    kind: "waist",
+    description:
+      "Measure the natural waistline, the narrowest part of the torso, while standing relaxed and upright.",
+    tape: "Wrap the tape around the narrowest part of the waist and bring the ends together at the front.",
+    stance: "Stand naturally without tightening the stomach.",
+    example: "Keep the tape horizontal and lightly touching the body at the waistline.",
+    tips: ["Stand naturally", "Do not hold your breath", "Keep the tape parallel to the floor"],
+  },
+  {
+    name: "Hip",
+    kind: "hips",
+    description:
+      "Measure around the fullest part of the hips and seat, usually about 8 inches below the waist.",
+    tape: "Wrap the tape around the widest part of the hips and return to the starting point on the same level.",
+    stance: "Stand with feet together and weight balanced evenly.",
+    example: "The tape should sit over the fullest curve of the hips, not above the waist.",
+    tips: ["Keep your feet together", "Measure the widest point", "Make sure the tape stays flat"],
+  },
+  {
+    name: "Shoulder",
+    kind: "shoulder",
+    description:
+      "Measure from one shoulder edge across the back to the other shoulder edge, following the top seam line.",
+    tape: "Place the tape from shoulder point to shoulder point across the upper back.",
+    stance: "Stand upright with the shoulders loose and level.",
+    example: "The tape should run straight across the shoulder line without dipping into the arm opening.",
+    tips: ["Find the shoulder bone edges", "Keep the tape straight across the back", "Ask someone to help for precision"],
+  },
+  {
+    name: "Sleeve Length",
+    kind: "sleeve",
+    description:
+      "Measure from the center back of the neck, across the shoulder, and down to the wrist bone.",
+    tape: "Start at the neck center, move over the shoulder point, and finish at the wrist bone.",
+    stance: "Keep the arm relaxed with a slight bend at the elbow.",
+    example: "The tape should follow the natural arm curve without pulling tight across the shoulder.",
+    tips: ["Keep the elbow soft", "Use a helper if possible", "Follow the natural arm line"],
+  },
+  {
+    name: "Neck",
+    kind: "neck",
+    description:
+      "Measure around the base of the neck, leaving a small amount of breathing room for comfort.",
+    tape: "Wrap the tape around the neck base and leave a finger-width gap before joining the ends.",
+    stance: "Stand upright and keep your chin level.",
+    example: "The tape should sit where a collar would naturally rest.",
+    tips: ["Leave space for one finger", "Keep the tape comfortably loose", "Measure where a collar would sit"],
+  },
+  {
+    name: "Arm/Bicep",
+    kind: "arm",
+    description:
+      "Measure around the fullest part of the upper arm, usually at the bicep area.",
+    tape: "Wrap the tape around the thickest part of the upper arm and meet it at the front without squeezing.",
+    stance: "Let the arm hang relaxed at the side or bend it slightly for accuracy.",
+    example: "The tape should remain level and sit comfortably around the upper arm muscle.",
+    tips: ["Do not flex the bicep", "Keep the tape level", "Measure the fullest part of the arm"],
+  },
+  {
+    name: "Thigh",
+    kind: "thigh",
+    description:
+      "Measure around the fullest part of the thigh, usually high on the leg near the crotch area.",
+    tape: "Place the tape around the upper thigh at the widest point and bring it back to the front on the same line.",
+    stance: "Stand with feet slightly apart and weight evenly distributed.",
+    example: "The tape should not angle up or down; keep it parallel to the floor.",
+    tips: ["Stand evenly on both feet", "Find the widest upper-thigh point", "Keep the tape smooth around the leg"],
+  },
+  {
+    name: "Inseam",
+    kind: "inseam",
+    description:
+      "Measure from the top of the inner thigh straight down to the floor with shoes off.",
+    tape: "Start at the crotch point or a flat book held between the legs, then measure straight down to the floor.",
+    stance: "Stand straight with legs slightly apart for a clear line.",
+    example: "The tape should run vertically from the inner thigh to the floor without slanting.",
+    tips: ["Use a flat book for accuracy", "Keep your stance balanced", "Measure directly downward"],
+  },
+  {
+    name: "Dress Length",
+    kind: "dress-length",
+    description:
+      "Measure from the top of the shoulder down to the point where you want the dress to finish.",
+    tape: "Start at the top of the shoulder and end at the desired hem level.",
+    stance: "Stand tall with the body straight so the length falls naturally.",
+    example: "The tape should travel in a clean vertical line down the front of the body.",
+    tips: ["Decide your hem point first", "Keep the tape vertical", "Measure while standing straight"],
+  },
+  {
+    name: "Skirt Length",
+    kind: "skirt-length",
+    description:
+      "Measure from the waistband position down to the point where you want the skirt to end.",
+    tape: "Start at the waistband and finish at the chosen hem point.",
+    stance: "Stand straight with the hips level and relaxed.",
+    example: "The tape should drop straight down from the waist without curving around the leg.",
+    tips: ["Mark the waistband first", "Keep the tape aligned to the front", "Measure to the exact hem point"],
+  },
+  {
+    name: "Back Width",
+    kind: "back-width",
+    description:
+      "Measure across the upper back between the points where the arms meet the torso.",
+    tape: "Place the tape from one back armhole point to the other, keeping it level across the shoulder blades.",
+    stance: "Stand straight with shoulders relaxed and arms slightly away from the body.",
+    example: "The tape should cross the upper back horizontally, just below the shoulder line.",
+    tips: ["Ask for a helper if possible", "Keep the tape straight across the back", "Do not let it dip below the shoulder blades"],
+  },
 ];
 
-const womenSizeChart = [
-  { size: "XS", bust: "32–33", waist: "24–25", hips: "34–35", sleeve: "30–31" },
-  { size: "S", bust: "34–35", waist: "26–27", hips: "36–37", sleeve: "31–32" },
-  { size: "M", bust: "36–37", waist: "28–29", hips: "38–39", sleeve: "32–33" },
-  { size: "L", bust: "38–40", waist: "30–32", hips: "40–42", sleeve: "33–34" },
-  { size: "XL", bust: "42–44", waist: "34–36", hips: "44–46", sleeve: "34–35" },
-];
-
-const tips = [
-  "Use a soft measuring tape and measure over bare skin or thin clothing for the most accurate results.",
-  "Stand naturally with your feet together and arms relaxed at your sides — don't hold your breath or suck in.",
-  "Keep the tape level and parallel to the floor. It should be snug but never tight enough to dig in.",
-  "For the most precise fit, ask someone to help you measure hard-to-reach areas like your back and shoulders.",
-  "Compare your measurements to the chart and, if you fall between sizes, we recommend sizing up for a more comfortable fit.",
-];
-
-// ── Measurement Reference Photos ──
-const MAX_PHOTO_SIZE_MB = 5;
-const MAX_PHOTO_SIZE_BYTES = MAX_PHOTO_SIZE_MB * 1024 * 1024;
-const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const ALLOWED_PHOTO_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
-
-const photoExamples = [
-  "Front view",
-  "Side view",
-  "Back view",
-  "Shoulder measurement",
-  "Chest measurement",
-  "Waist measurement",
-  "Trouser measurement",
-];
-
-const womenPhotoExamples = [
-  "Front view",
-  "Side view",
-  "Back view",
-  "Bust measurement",
-  "Waist measurement",
-  "Hip measurement",
-  "Dress measurement",
-];
-
-type UploadedPhoto = {
-  id: string;
-  file: File;
-  previewUrl: string;
-  name: string;
-  size: number;
+const guidesByTab: Record<TabKey, MeasurementGuide[]> = {
+  men: menGuides,
+  women: womenGuides,
 };
 
-// Complete men's measurement form fields (all in inches)
-const menFormFields = [
-  "Neck",
-  "Shoulder Width",
-  "Chest",
-  "Waist",
-  "Hip",
-  "Biceps",
-  "Sleeve Length",
-  "Wrist",
-  "Shirt Length",
-  "Thigh",
-  "Knee",
-  "Calf",
-  "Inseam",
-  "Outseam",
-  "Trouser Length",
-  "Ankle",
-] as const;
+function MeasurementIllustration({ kind }: { kind: MeasurementKind }) {
+  const gradientId = useId();
+  const accent = "rgba(201,168,76,0.95)";
+  const accentSoft = "rgba(201,168,76,0.22)";
+  const ink = "rgba(var(--ink-rgb),0.72)";
 
-type MenFormValues = Record<(typeof menFormFields)[number], string>;
+  const baseFigure = (
+    <>
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.95)" />
+          <stop offset="100%" stopColor="rgba(245,240,232,0.70)" />
+        </linearGradient>
+      </defs>
+      <circle cx="128" cy="40" r="18" fill={`url(#${gradientId})`} stroke={ink} strokeWidth="2" />
+      <path
+        d="M108 60c6 10 12 15 20 15s14-5 20-15"
+        fill="none"
+        stroke={ink}
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M95 76c12-12 58-12 70 0 7 8 9 20 9 35 0 33-8 52-10 70-1 9 0 18 4 24H92c4-6 5-15 4-24-2-18-10-37-10-70 0-15 2-27 9-35Z"
+        fill={`url(#${gradientId})`}
+        stroke={ink}
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M88 118c-14 12-26 28-33 47"
+        fill="none"
+        stroke={ink}
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M172 118c14 12 26 28 33 47"
+        fill="none"
+        stroke={ink}
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M100 180c-2 12-8 24-17 32"
+        fill="none"
+        stroke={ink}
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M156 180c2 12 8 24 17 32"
+        fill="none"
+        stroke={ink}
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </>
+  );
 
-const initialMenFormValues: MenFormValues = menFormFields.reduce(
-  (acc, field) => ({ ...acc, [field]: "" }),
-  {} as MenFormValues,
-);
+  const highlight = (() => {
+    switch (kind) {
+      case "chest":
+      case "bust":
+        return (
+          <>
+            <path d="M86 104h84" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="86" cy="104" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="170" cy="104" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="128"
+              y="94"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Chest line
+            </text>
+          </>
+        );
+      case "underbust":
+        return (
+          <>
+            <path d="M88 120h80" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="88" cy="120" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="168" cy="120" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="128"
+              y="110"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Under bust
+            </text>
+          </>
+        );
+      case "waist":
+        return (
+          <>
+            <path d="M90 136h76" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="90" cy="136" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="166" cy="136" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="128"
+              y="126"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Waist line
+            </text>
+          </>
+        );
+      case "shoulder":
+        return (
+          <>
+            <path d="M74 78h108" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="74" cy="78" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="182" cy="78" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="128"
+              y="68"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Shoulder span
+            </text>
+          </>
+        );
+      case "back-width":
+        return (
+          <>
+            <path d="M74 92h108" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="74" cy="92" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="182" cy="92" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="128"
+              y="82"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Back width
+            </text>
+          </>
+        );
+      case "hips":
+        return (
+          <>
+            <path d="M82 162h92" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="82" cy="162" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="174" cy="162" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="128"
+              y="152"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Hip line
+            </text>
+          </>
+        );
+      case "arm":
+        return (
+          <>
+            <path d="M170 118c-16 6-30 14-40 26" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="170" cy="118" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="130" cy="144" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="160"
+              y="108"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Arm / bicep
+            </text>
+          </>
+        );
+      case "thigh":
+        return (
+          <>
+            <path d="M118 162h56" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="118" cy="162" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="174" cy="162" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="146"
+              y="152"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Thigh
+            </text>
+          </>
+        );
+      case "inseam":
+        return (
+          <>
+            <path d="M128 88v92" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="128" cy="88" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="128" cy="180" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="160"
+              y="136"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Inseam
+            </text>
+          </>
+        );
+      case "trouser-length":
+        return (
+          <>
+            <path d="M128 74v118" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="128" cy="74" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="128" cy="192" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="160"
+              y="136"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Trouser length
+            </text>
+          </>
+        );
+      case "dress-length":
+        return (
+          <>
+            <path d="M128 54v138" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="128" cy="54" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="128" cy="192" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="162"
+              y="128"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Dress length
+            </text>
+          </>
+        );
+      case "skirt-length":
+        return (
+          <>
+            <path d="M128 136v84" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="128" cy="136" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="128" cy="220" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="164"
+              y="186"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Skirt length
+            </text>
+          </>
+        );
+      case "sleeve":
+        return (
+          <>
+            <path d="M98 76c-10 15-20 33-24 53" fill="none" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="98" cy="76" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <circle cx="74" cy="129" r="5" fill={accentSoft} stroke={accent} strokeWidth="2" />
+            <text
+              x="154"
+              y="120"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Sleeve length
+            </text>
+          </>
+        );
+      case "neck":
+        return (
+          <>
+            <circle cx="128" cy="52" r="25" fill="none" stroke={accent} strokeWidth="4" />
+            <text
+              x="128"
+              y="96"
+              textAnchor="middle"
+              className="fill-[color:var(--rich-black)] text-[10px] font-semibold uppercase tracking-[0.18em]"
+            >
+              Neck base
+            </text>
+          </>
+        );
+    }
+  })();
 
-// Complete women's measurement form fields (all in inches)
-const womenFormFields = [
-  "Shoulder",
-  "Bust",
-  "Under Bust",
-  "Waist",
-  "Hip",
-  "Shoulder to Bust",
-  "Shoulder to Waist",
-  "Shoulder to Knee",
-  "Shoulder to Floor",
-  "Sleeve Length",
-  "Armhole",
-  "Biceps",
-  "Wrist",
-  "Neck",
-  "Thigh",
-  "Knee",
-  "Calf",
-  "Dress Length",
-] as const;
+  return (
+    <svg viewBox="0 0 256 256" role="img" aria-hidden="true" className="h-full w-full">
+      <rect x="0" y="0" width="256" height="256" rx="28" fill="rgba(255,255,255,0.55)" />
+      <ellipse cx="128" cy="210" rx="74" ry="22" fill="rgba(201,168,76,0.08)" />
+      {baseFigure}
+      {highlight}
+    </svg>
+  );
+}
 
-type WomenFormValues = Record<(typeof womenFormFields)[number], string>;
+function GuideCard({
+  guide,
+  index,
+  value,
+  onChange,
+}: {
+  guide: MeasurementGuide;
+  index: number;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <ScrollReveal delay={0.04 * index} className="h-full">
+      <article className="glass-surface group h-full overflow-hidden rounded-[1.45rem] border border-[rgba(201,168,76,0.14)] bg-white/75 p-3.5 shadow-[0_20px_56px_rgba(var(--ink-rgb),0.05)] transition-transform duration-300 hover:-translate-y-1 md:p-4">
+        <div className="space-y-3.5 md:space-y-4">
+          <div className="rounded-[1.2rem] border border-[rgba(201,168,76,0.14)] bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(245,240,232,0.72))] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] transition-transform duration-300 ease-out md:p-2.5 lg:group-hover:scale-[1.02]">
+            <MeasurementIllustration kind={guide.kind} />
+          </div>
 
-const initialWomenFormValues: WomenFormValues = womenFormFields.reduce(
-  (acc, field) => ({ ...acc, [field]: "" }),
-  {} as WomenFormValues,
-);
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.08)] text-xs font-black uppercase tracking-[0.2em] text-[color:var(--gold)]">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:var(--gold)]">Measurement</p>
+                <h3 className="mt-1 text-xl font-black tracking-tight text-[color:var(--rich-black)] md:text-[1.35rem]">
+                  {guide.name}
+                </h3>
+              </div>
+            </div>
+
+            <p className="text-sm leading-6 text-muted md:text-[0.92rem]">{guide.description}</p>
+
+            <div className="grid gap-2.5 rounded-[1.15rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/60 p-3.5 md:grid-cols-3 md:gap-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">Tape placement</p>
+                <p className="mt-1 text-sm leading-6 text-muted">{guide.tape}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">How to stand</p>
+                <p className="mt-1 text-sm leading-6 text-muted">{guide.stance}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">Look for</p>
+                <p className="mt-1 text-sm leading-6 text-muted">{guide.example}</p>
+              </div>
+            </div>
+
+            <div className="rounded-[1.15rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/60 p-3.5 md:p-4">
+              <label className="block space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">Your value</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={value}
+                  onChange={(event) => onChange(event.target.value)}
+                  placeholder={`Enter ${guide.name.toLowerCase()} value`}
+                  className="w-full rounded-2xl border border-[rgba(var(--ink-rgb),0.10)] bg-white/85 px-4 py-2.5 text-sm text-[color:var(--rich-black)] outline-none transition duration-300 placeholder:text-[color:var(--text-light)] focus:border-[rgba(201,168,76,0.45)] focus:ring-2 focus:ring-[rgba(201,168,76,0.12)]"
+                />
+              </label>
+
+              <div className="mt-3 border-t border-[rgba(var(--ink-rgb),0.06)] pt-3">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">Simple tips</p>
+                <ul className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                  {guide.tips.map((tip) => (
+                    <li key={tip} className="flex items-start gap-2 text-sm leading-6 text-muted">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[color:var(--gold)]" aria-hidden="true" />
+                      <span className="text-[0.9rem] leading-6">{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </ScrollReveal>
+  );
+}
 
 export default function MeasurementsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("men");
-  const [menFormValues, setMenFormValues] = useState<MenFormValues>(initialMenFormValues);
-  const [menFormErrors, setMenFormErrors] = useState<Partial<Record<(typeof menFormFields)[number], string>>>({});
-  const [menFormSuccess, setMenFormSuccess] = useState(false);
-  const [menFormAttempted, setMenFormAttempted] = useState(false);
+  const [valuesByTab, setValuesByTab] = useState<Record<TabKey, Record<string, string>>>(() => ({
+    men: createEmptyValues(menGuides),
+    women: createEmptyValues(womenGuides),
+  }));
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const activeGuides = guidesByTab[activeTab];
 
-  // ── Photo upload state ──
-  const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [photoError, setPhotoError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const photoIdCounter = useRef(0);
+  const handleFieldChange = (key: string, value: string) => {
+    setValuesByTab((current) => ({
+      ...current,
+      [activeTab]: {
+        ...current[activeTab],
+        [key]: value,
+      },
+    }));
+    setSubmitMessage(null);
+  };
 
-  // Validate and add photo files
-  const addPhotoFiles = useCallback((files: FileList | File[]) => {
-    const fileArray = Array.from(files);
-    const validFiles: UploadedPhoto[] = [];
-    let errorMessage: string | null = null;
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    fileArray.forEach((file) => {
-      const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-      const isAllowedType = ALLOWED_PHOTO_TYPES.includes(file.type) || ALLOWED_PHOTO_EXTENSIONS.includes(ext);
-
-      if (!isAllowedType) {
-        errorMessage = `"${file.name}" is not supported. Please upload JPG, PNG, or WebP images only.`;
-        return;
-      }
-
-      if (file.size > MAX_PHOTO_SIZE_BYTES) {
-        errorMessage = `"${file.name}" exceeds the ${MAX_PHOTO_SIZE_MB}MB maximum file size.`;
-        return;
-      }
-
-      photoIdCounter.current += 1;
-      validFiles.push({
-        id: `photo-${photoIdCounter.current}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-        name: file.name,
-        size: file.size,
-      });
+    saveMeasurements({
+      type: activeTab,
+      values: valuesByTab[activeTab],
+      photos: [],
+      savedAt: new Date().toISOString(),
     });
 
-    if (errorMessage) {
-      setPhotoError(errorMessage);
-    } else {
-      setPhotoError(null);
-    }
-
-    if (validFiles.length > 0) {
-      setPhotos((prev) => [...prev, ...validFiles]);
-    }
-  }, []);
-
-  // Handle file input change
-  const handlePhotoInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      addPhotoFiles(e.target.files);
-    }
-    // Reset input so the same file can be re-selected
-    e.target.value = "";
-  };
-
-  // Handle drag over
-  const handlePhotoDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  // Handle drag leave
-  const handlePhotoDragLeave = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  // Handle drop
-  const handlePhotoDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      addPhotoFiles(e.dataTransfer.files);
-    }
-  };
-
-  // Remove a photo
-  const handlePhotoRemove = (id: string) => {
-    setPhotos((prev) => {
-      const photo = prev.find((p) => p.id === id);
-      if (photo) {
-        URL.revokeObjectURL(photo.previewUrl);
-      }
-      return prev.filter((p) => p.id !== id);
-    });
-  };
-
-  // Format file size for display
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const activeMeasurements = activeTab === "men" ? menMeasurements : womenMeasurements;
-  const activeChart = activeTab === "men" ? menSizeChart : womenSizeChart;
-  const chartColumns = activeTab === "men"
-    ? ["Size", "Chest (in)", "Waist (in)", "Hips (in)", "Sleeve (in)"]
-    : ["Size", "Bust (in)", "Waist (in)", "Hips (in)", "Sleeve (in)"];
-
-  const cellClass = "whitespace-nowrap px-4 py-3.5 text-sm text-[color:var(--muted)]";
-  const headClass =
-    "whitespace-nowrap px-4 py-3.5 text-left text-xs font-bold uppercase tracking-[0.08em] text-[color:var(--gold)]";
-  const rowClass = "border-t border-[rgba(201,168,76,0.10)] transition-colors duration-200 hover:bg-[rgba(201,168,76,0.05)]";
-
-  // ── Women's form state ──
-  const [womenFormValues, setWomenFormValues] = useState<WomenFormValues>(initialWomenFormValues);
-  const [womenFormErrors, setWomenFormErrors] = useState<Partial<Record<(typeof womenFormFields)[number], string>>>({});
-  const [womenFormSuccess, setWomenFormSuccess] = useState(false);
-  const [womenFormAttempted, setWomenFormAttempted] = useState(false);
-
-  // Handle men's form input changes — numbers only, positive values
-  const handleMenFormChange = (field: (typeof menFormFields)[number], value: string) => {
-    // Allow only digits and a single decimal point
-    const sanitized = value.replace(/[^\d.]/g, "");
-    // Prevent multiple decimal points
-    const parts = sanitized.split(".");
-    const cleanValue = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : sanitized;
-
-    setMenFormValues((prev) => ({ ...prev, [field]: cleanValue }));
-
-    // Clear error for this field as user types
-    if (menFormErrors[field]) {
-      setMenFormErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
-
-  // Handle women's form input changes — numbers only, positive values
-  const handleWomenFormChange = (field: (typeof womenFormFields)[number], value: string) => {
-    // Allow only digits and a single decimal point
-    const sanitized = value.replace(/[^\d.]/g, "");
-    // Prevent multiple decimal points
-    const parts = sanitized.split(".");
-    const cleanValue = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : sanitized;
-
-    setWomenFormValues((prev) => ({ ...prev, [field]: cleanValue }));
-
-    // Clear error for this field as user types
-    if (womenFormErrors[field]) {
-      setWomenFormErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
-
-  // Validate a single men's field
-  const validateMenField = (field: (typeof menFormFields)[number], value: string): string | undefined => {
-    if (!value.trim()) {
-      return "This field is required";
-    }
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      return "Please enter a valid number";
-    }
-    if (num <= 0) {
-      return "Must be a positive value";
-    }
-    return undefined;
-  };
-
-  // Validate a single women's field
-  const validateWomenField = (field: (typeof womenFormFields)[number], value: string): string | undefined => {
-    if (!value.trim()) {
-      return "This field is required";
-    }
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      return "Please enter a valid number";
-    }
-    if (num <= 0) {
-      return "Must be a positive value";
-    }
-    return undefined;
-  };
-
-  // Convert uploaded photo files to data URLs for persistence
-  const photosToDataUrls = useCallback(async (): Promise<{ name: string; size: number; dataUrl: string }[]> => {
-    const results: { name: string; size: number; dataUrl: string }[] = [];
-    for (const photo of photos) {
-      try {
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(photo.file);
-        });
-        results.push({ name: photo.name, size: photo.size, dataUrl });
-      } catch {
-        // Skip photos that fail to convert
-      }
-    }
-    return results;
-  }, [photos]);
-
-  // Persist measurements to localStorage so they survive page navigation
-  const persistMeasurements = useCallback(
-    async (type: "men" | "women", values: Record<string, string>) => {
-      const photoData = await photosToDataUrls();
-      const data: SavedMeasurements = {
-        type,
-        values,
-        photos: photoData,
-        savedAt: new Date().toISOString(),
-      };
-      saveMeasurements(data);
-    },
-    [photosToDataUrls],
-  );
-
-  // Validate all men's fields on submit
-  const handleMenFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMenFormAttempted(true);
-
-    const newErrors: Partial<Record<(typeof menFormFields)[number], string>> = {};
-    let hasErrors = false;
-
-    menFormFields.forEach((field) => {
-      const error = validateMenField(field, menFormValues[field]);
-      if (error) {
-        newErrors[field] = error;
-        hasErrors = true;
-      }
-    });
-
-    setMenFormErrors(newErrors);
-    setMenFormSuccess(!hasErrors);
-
-    if (!hasErrors) {
-      await persistMeasurements("men", menFormValues);
-    }
-  };
-
-  // Validate all women's fields on submit
-  const handleWomenFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setWomenFormAttempted(true);
-
-    const newErrors: Partial<Record<(typeof womenFormFields)[number], string>> = {};
-    let hasErrors = false;
-
-    womenFormFields.forEach((field) => {
-      const error = validateWomenField(field, womenFormValues[field]);
-      if (error) {
-        newErrors[field] = error;
-        hasErrors = true;
-      }
-    });
-
-    setWomenFormErrors(newErrors);
-    setWomenFormSuccess(!hasErrors);
-
-    if (!hasErrors) {
-      await persistMeasurements("women", womenFormValues);
-    }
+    setSubmitMessage(
+      `${activeTab === "men" ? "Men's" : "Women's"} measurements saved successfully.`,
+    );
   };
 
   return (
-    <div className="section-shell py-8 md:py-12">
-      {/* ── Page header ── */}
-      <section className="glass-surface no-hover rounded-[2rem] p-6 md:p-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-3">
-            <span className="section-badge">Measurements</span>
-            <h1 className="text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-5xl">
-              Find your <span className="gradient-text">perfect fit</span>
-            </h1>
-            <p className="max-w-2xl text-muted">
-              Accurate measurements are the foundation of impeccable tailoring. Follow our guides to
-              measure yourself correctly and discover the size that fits you flawlessly.
-            </p>
+    <div className="section-shell no-hover py-8 md:py-12">
+      <section className="grid gap-6 rounded-[2rem] border border-[rgba(201,168,76,0.14)] bg-white/75 p-6 shadow-[0_30px_90px_rgba(var(--ink-rgb),0.06)] backdrop-blur-md md:gap-8 md:p-10 lg:grid-cols-[1.06fr_0.94fr] lg:items-center">
+        <div className="space-y-6">
+          <ScrollReveal>
+            <span className="section-badge">Measurement guide</span>
+          </ScrollReveal>
+
+          <div className="space-y-4">
+            <ScrollReveal delay={0.08}>
+              <h1 className="max-w-2xl text-4xl font-black tracking-tight text-[color:var(--rich-black)] md:text-6xl">
+                How to Measure Yourself
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal delay={0.16}>
+              <p className="max-w-2xl text-base leading-8 text-muted md:text-lg">
+                Use a flexible measuring tape, wear fitted clothing, stand naturally, and keep the tape level
+                around the body. When measuring the back, shoulders, or any hard-to-reach point, ask someone to
+                assist so the result stays clean and accurate.
+              </p>
+            </ScrollReveal>
           </div>
-          <Link href={whatsappUrl} target="_blank" rel="noreferrer" className="button-secondary shrink-0">
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            Ask a stylist
-          </Link>
+
+          <ScrollReveal delay={0.24}>
+            <div className="flex flex-wrap gap-3">
+              {introPills.map((pill) => (
+                <span
+                  key={pill}
+                  className="rounded-full border border-[rgba(201,168,76,0.14)] bg-[rgba(201,168,76,0.06)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)]"
+                >
+                  {pill}
+                </span>
+              ))}
+            </div>
+          </ScrollReveal>
         </div>
+
+        <ScrollReveal delay={0.12}>
+          <div className="glass-surface overflow-hidden rounded-[1.75rem] border border-[rgba(201,168,76,0.14)] bg-[linear-gradient(160deg,rgba(255,255,255,0.95),rgba(245,240,232,0.78))] p-5 shadow-[0_24px_70px_rgba(var(--ink-rgb),0.08)] md:p-6">
+            <div className="flex items-center justify-between gap-4 border-b border-[rgba(var(--ink-rgb),0.08)] pb-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:var(--gold)]">Luxury fit ritual</p>
+                <h2 className="mt-2 text-2xl font-black text-[color:var(--rich-black)]">Measure with calm, not guesswork</h2>
+              </div>
+              <div className="rounded-full border border-[rgba(201,168,76,0.14)] bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-[color:var(--gold)]">
+                5 steps
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                "Prepare a soft tape.",
+                "Stand in natural light.",
+                "Keep posture relaxed.",
+                "Check the tape is level.",
+                "Measure twice for confidence.",
+                "Write each value as you go.",
+              ].map((step, index) => (
+                <div
+                  key={step}
+                  className="rounded-[1.1rem] border border-[rgba(var(--ink-rgb),0.06)] bg-white/70 p-4"
+                >
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[color:var(--gold)]">
+                    Step {index + 1}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-muted">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
       </section>
 
-      {/* ── Tab switcher ── */}
-      <div className="mt-10 flex justify-center">
-        <div
-          role="tablist"
-          aria-label="Measurement guides"
-          className="relative grid w-full max-w-xl grid-cols-2 gap-1 rounded-full border border-[rgba(201,168,76,0.20)] bg-white/60 p-1.5 shadow-[0_8px_32px_rgba(var(--ink-rgb),0.06)] backdrop-blur-md"
-        >
-          {/* Sliding gold indicator */}
-          <span
-            aria-hidden="true"
-            className={`absolute inset-y-1.5 w-[calc(50%-0.375rem)] rounded-full bg-[var(--gold-gradient)] shadow-[0_6px_20px_rgba(201,168,76,0.35)] transition-transform duration-500 ${
-              activeTab === "men" ? "translate-x-1.5" : "translate-x-[calc(100%+0.75rem)]"
-            }`}
-            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
-          />
-          <button
-            type="button"
-            role="tab"
-            id="tab-men"
-            aria-selected={activeTab === "men"}
-            aria-controls="panel-men"
-            onClick={() => setActiveTab("men")}
-            className={`relative z-10 flex items-center justify-center gap-2 rounded-full px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.08em] transition-colors duration-300 md:text-base ${
-              activeTab === "men" ? "text-white" : "text-[color:var(--muted)] hover:text-[color:var(--gold)]"
-            }`}
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="5" r="3" />
-              <path d="M12 8v5" />
-              <path d="M8 13h8" />
-              <path d="M12 13v8" />
-              <path d="M8 21l4-4 4 4" />
-            </svg>
-            Men's
-          </button>
-          <button
-            type="button"
-            role="tab"
-            id="tab-women"
-            aria-selected={activeTab === "women"}
-            aria-controls="panel-women"
-            onClick={() => setActiveTab("women")}
-            className={`relative z-10 flex items-center justify-center gap-2 rounded-full px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.08em] transition-colors duration-300 md:text-base ${
-              activeTab === "women" ? "text-white" : "text-[color:var(--muted)] hover:text-[color:var(--gold)]"
-            }`}
-          >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="5" r="3" />
-              <path d="M12 8v5" />
-              <path d="M8 13h8" />
-              <path d="M12 13v8" />
-              <path d="M8 21l4-4 4 4" />
-            </svg>
-            Women's
-          </button>
-        </div>
-      </div>
-
-      {/* ── Tab panels ── */}
-      <div className="mt-10">
-        {/* Men's panel */}
-        <div
-          key="panel-men"
-          role="tabpanel"
-          id="panel-men"
-          aria-labelledby="tab-men"
-          hidden={activeTab !== "men"}
-          className={`measurement-panel ${activeTab === "men" ? "measurement-panel-enter" : ""}`}
-        >
-          <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-3">
-            {/* Measurement instructions */}
-            <div className="overflow-hidden rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/70 p-4 shadow-[0_12px_32px_rgba(var(--ink-rgb),0.04)] backdrop-blur-md md:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3v18" />
-                    <path d="M8 21h8" />
-                    <path d="M12 3c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z" />
-                  </svg>
-                </span>
-                <div>
-                  <h2 className="text-base font-black text-[color:var(--rich-black)] md:text-lg">
-                    How to measure — <span className="text-[color:var(--gold)]">Men</span>
-                  </h2>
-                  <p className="text-xs text-muted">Six key measurements for the perfect fit</p>
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {activeMeasurements.map((m) => (
-                  <div
-                    key={m.name}
-                    className="group rounded-xl border border-[rgba(201,168,76,0.10)] bg-white/60 p-3 transition-all duration-300 hover:border-[rgba(201,168,76,0.35)] hover:bg-[rgba(201,168,76,0.05)] hover:shadow-[0_8px_24px_rgba(201,168,76,0.10)]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.10)] text-[color:var(--gold)] transition-colors duration-300 group-hover:bg-[var(--gold-gradient)] group-hover:text-white">
-                        {m.icon}
-                      </span>
-                      <h3 className="text-xs font-extrabold uppercase tracking-[0.06em] text-[color:var(--rich-black)]">
-                        {m.name}
-                      </h3>
-                    </div>
-                    <p className="mt-2 text-[11px] leading-4 text-muted">{m.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Size chart */}
-            <div className="overflow-hidden rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/70 p-4 shadow-[0_12px_32px_rgba(var(--ink-rgb),0.04)] backdrop-blur-md md:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="16" rx="2" />
-                    <path d="M3 10h18" />
-                    <path d="M9 4v6" />
-                    <path d="M15 4v6" />
-                  </svg>
-                </span>
-                <div>
-                  <h2 className="text-base font-black text-[color:var(--rich-black)] md:text-lg">
-                    {activeTab === "men" ? "Men's" : "Women's"} <span className="text-[color:var(--gold)]">Size Chart</span>
-                  </h2>
-                  <p className="text-xs text-muted">Measurements in inches</p>
-                </div>
-              </div>
-
-              <div className="mt-4 -mx-2 overflow-x-auto px-2">
-                <table className="w-full min-w-[380px] border-collapse text-left">
-                  <thead>
-                    <tr>
-                      {chartColumns.map((col) => (
-                        <th key={col} className={headClass}>{col}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeChart.map((row) => (
-                      <tr key={row.size} className={rowClass}>
-                        <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.size}</td>
-                        {Object.entries(row)
-                          .filter(([key]) => key !== "size")
-                          .map(([key, value]) => (
-                            <td key={key} className={cellClass}>{value}</td>
-                          ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-3 text-[11px] text-[color:var(--text-light)]">
-                Sizes are approximate. Our atelier will take exact measurements.
-              </p>
-            </div>
-
-            {/* Tips card */}
-            <div className="rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/70 p-4 shadow-[0_12px_32px_rgba(var(--ink-rgb),0.04)] backdrop-blur-md md:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 18h6" />
-                    <path d="M10 22h4" />
-                    <path d="M12 2a7 7 0 00-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0012 2z" />
-                  </svg>
-                </span>
-                <h2 className="text-base font-black text-[color:var(--rich-black)] md:text-lg">
-                  Pro <span className="text-[color:var(--gold)]">Tips</span>
+      <section className="mt-8 space-y-6 md:mt-10 md:space-y-8">
+        <ScrollReveal>
+          <div className="rounded-[1.75rem] border border-[rgba(201,168,76,0.12)] bg-white/70 p-4 shadow-[0_20px_60px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:var(--gold)]">Choose a guide</p>
+                <h2 className="mt-2 text-2xl font-black text-[color:var(--rich-black)] md:text-3xl">
+                  Switch between Men&apos;s and Women&apos;s measurements
                 </h2>
               </div>
-              <ul className="mt-4 space-y-2.5">
-                {tips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-xs leading-5 text-muted">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[10px] font-black text-[color:var(--gold)]">
-                      {i + 1}
-                    </span>
-                    {tip}
-                  </li>
-                ))}
-              </ul>
+
+              <div className="inline-flex w-full flex-wrap justify-stretch rounded-[1.5rem] border border-[rgba(201,168,76,0.14)] bg-white/75 p-1 sm:w-auto sm:rounded-full">
+                {(["men", "women"] as TabKey[]).map((tab) => {
+                  const active = activeTab === tab;
+                  const label = tab === "men" ? "Men's Measurements" : "Women's Measurements";
+
+                  return (
+                    <button
+                      key={tab}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setActiveTab(tab)}
+                      className={`flex-1 rounded-[1.1rem] px-4 py-3 text-sm font-bold transition-all duration-300 ease-out sm:flex-none sm:rounded-full sm:px-4 sm:py-2.5 ${
+                        active
+                          ? "bg-[color:var(--gold)] text-[#1A1A1A] shadow-[0_10px_28px_rgba(201,168,76,0.28)]"
+                          : "text-[color:var(--foreground)] hover:-translate-y-0.5 hover:bg-[rgba(201,168,76,0.08)] hover:text-[color:var(--gold)]"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
+        </ScrollReveal>
 
-          {/* ── Men's Measurement Form ── */}
-          <form
-            onSubmit={handleMenFormSubmit}
-            noValidate
-            className="mt-10 rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8"
-          >
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
-                </span>
+        <div role="tabpanel" aria-label={`${activeTab === "men" ? "Men's" : "Women's"} measurements`} className="space-y-5 md:space-y-6">
+          <ScrollReveal>
+            <div className="rounded-[1.75rem] border border-[rgba(201,168,76,0.12)] bg-white/75 p-5 shadow-[0_20px_60px_rgba(var(--ink-rgb),0.05)] md:p-6">
+              <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <h2 className="text-xl font-black text-[color:var(--rich-black)] md:text-2xl">
-                    Men's <span className="text-[color:var(--gold)]">Measurement Form</span>
-                  </h2>
-                  <p className="text-sm text-muted">Enter all measurements in inches</p>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:var(--gold)]">
+                    {activeTab === "men" ? "Men's Measurements" : "Women's Measurements"}
+                  </p>
+                  <h3 className="mt-2 text-2xl font-black text-[color:var(--rich-black)] md:text-3xl">
+                    Visual instructions for every key point
+                  </h3>
                 </div>
+                <p className="max-w-xl text-sm leading-7 text-muted">
+                  Each guide shows where the tape should sit, how to hold your posture, and the small habits that
+                  keep a measurement consistent.
+                </p>
               </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(201,168,76,0.20)] bg-[rgba(201,168,76,0.08)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-[color:var(--gold)]">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 3v18" />
-                  <path d="M8 21h8" />
-                  <path d="M12 3c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z" />
-                </svg>
-                All fields required
-              </span>
             </div>
+          </ScrollReveal>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {menFormFields.map((field) => {
-                const error = menFormErrors[field];
-                const hasError = !!error;
-                return (
-                  <div key={field} className="group">
-                    <label
-                      htmlFor={`men-${field.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="mb-1.5 flex items-center justify-between text-xs font-bold uppercase tracking-[0.06em] text-[color:var(--muted)]"
-                    >
-                      <span>{field}</span>
-                      <span className="text-[10px] font-semibold normal-case tracking-normal text-[color:var(--gold)]">inches</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        id={`men-${field.toLowerCase().replace(/\s+/g, "-")}`}
-                        type="text"
-                        inputMode="decimal"
-                        placeholder="0.0"
-                        value={menFormValues[field]}
-                        onChange={(e) => handleMenFormChange(field, e.target.value)}
-                        aria-invalid={hasError}
-                        aria-describedby={hasError ? `men-${field.toLowerCase().replace(/\s+/g, "-")}-error` : undefined}
-                        className={`input-field pr-14 ${hasError ? "!border-[rgba(212,120,106,0.6)] !shadow-[0_0_0_4px_rgba(212,120,106,0.12)]" : ""}`}
-                      />
-                      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xs font-bold text-[color:var(--gold)]">
-                        in
-                      </span>
-                    </div>
-                    {hasError && (
-                      <p
-                        id={`men-${field.toLowerCase().replace(/\s+/g, "-")}-error`}
-                        className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-[#D4786A]"
-                      >
-                        <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" />
-                          <path d="M12 8v4" />
-                          <path d="M12 16h.01" />
-                        </svg>
-                        {error}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-              <p className={`text-xs ${menFormSuccess ? "font-bold text-[color:var(--gold)]" : "text-[color:var(--text-light)]"}`}>
-                {menFormSuccess
-                  ? "✓ All measurements recorded successfully."
-                  : menFormAttempted
-                    ? "Please fix the highlighted fields and try again."
-                    : "All 16 fields are required. Values must be positive numbers."}
-              </p>
-              <button type="submit" className="button-primary px-8 py-3">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                Submit Measurements
-              </button>
-            </div>
-          </form>
-
-          {/* ── Measurement Reference Photos ── */}
-          <section className="mt-10 rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <path d="M21 15l-5-5L5 21" />
-                  </svg>
-                </span>
-                <div>
-                  <h2 className="text-xl font-black text-[color:var(--rich-black)] md:text-2xl">
-                    Measurement <span className="text-[color:var(--gold)]">Reference Photos</span>
-                  </h2>
-                  <p className="text-sm text-muted">Upload photos showing your body measurements for accurate tailoring</p>
-                </div>
-              </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(201,168,76,0.20)] bg-[rgba(201,168,76,0.08)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-[color:var(--gold)]">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <path d="M17 8l-5-5-5 5" />
-                  <path d="M12 3v12" />
-                </svg>
-                JPG · PNG · WebP
-              </span>
-            </div>
-
-            {/* Example photo types */}
-            <div className="mt-6 flex flex-wrap gap-2">
-              {photoExamples.map((example) => (
-                <span
-                  key={example}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.06)] px-3 py-1 text-xs font-semibold text-[color:var(--muted)]"
-                >
-                  <svg className="h-3 w-3 text-[color:var(--gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
-                  {example}
-                </span>
+          <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:gap-5">
+              {activeGuides.map((guide, index) => (
+                <GuideCard
+                  key={guide.name}
+                  guide={guide}
+                  index={index}
+                  value={valuesByTab[activeTab][guide.kind] ?? ""}
+                  onChange={(value) => handleFieldChange(guide.kind, value)}
+                />
               ))}
             </div>
 
-            {/* Drag & drop zone */}
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => fileInputRef.current?.click()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  fileInputRef.current?.click();
-                }
-              }}
-              onDragOver={handlePhotoDragOver}
-              onDragLeave={handlePhotoDragLeave}
-              onDrop={handlePhotoDrop}
-              className={`mt-6 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-all duration-300 ${
-                isDragging
-                  ? "border-[rgba(201,168,76,0.7)] bg-[rgba(201,168,76,0.10)] shadow-[0_0_0_4px_rgba(201,168,76,0.12)]"
-                  : "border-[rgba(201,168,76,0.25)] bg-white/40 hover:border-[rgba(201,168,76,0.5)] hover:bg-[rgba(201,168,76,0.05)]"
-              }`}
-            >
-              <span className={`flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 ${
-                isDragging ? "bg-[var(--gold-gradient)] text-white scale-110" : "bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]"
-              }`}>
-                <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <path d="M17 8l-5-5-5 5" />
-                  <path d="M12 3v12" />
-                </svg>
-              </span>
-              <p className="mt-4 text-base font-extrabold text-[color:var(--rich-black)]">
-                {isDragging ? "Drop your photos here" : "Drag & drop your photos here"}
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                or <span className="font-bold text-[color:var(--gold)] underline underline-offset-2">browse files</span>
-              </p>
-              <p className="mt-3 text-xs text-[color:var(--text-light)]">
-                Maximum {MAX_PHOTO_SIZE_MB}MB per file · JPG, PNG, or WebP
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                multiple
-                onChange={handlePhotoInputChange}
-                className="hidden"
-                aria-label="Upload measurement reference photos"
-              />
-            </div>
-
-            {/* Error message */}
-            {photoError && (
-              <div className="mt-4 flex items-start gap-2 rounded-xl border border-[rgba(212,120,106,0.30)] bg-[rgba(212,120,106,0.08)] px-4 py-3 text-sm font-semibold text-[#D4786A]">
-                <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 8v4" />
-                  <path d="M12 16h.01" />
-                </svg>
-                {photoError}
-              </div>
-            )}
-
-            {/* Uploaded photo previews */}
-            {photos.length > 0 && (
-              <div className="mt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-extrabold uppercase tracking-[0.08em] text-[color:var(--gold)]">
-                    Uploaded Photos ({photos.length})
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
-                      setPhotos([]);
-                    }}
-                    className="text-xs font-bold text-[color:var(--muted)] transition-colors hover:text-[#D4786A]"
-                  >
-                    Clear all
-                  </button>
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {photos.map((photo) => (
-                    <div
-                      key={photo.id}
-                      className="group relative overflow-hidden rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/60 shadow-[0_8px_24px_rgba(var(--ink-rgb),0.06)]"
-                    >
-                      <div className="aspect-[4/5] overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={photo.previewUrl}
-                          alt={photo.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(var(--scrim-rgb),0.92)] via-[rgba(var(--scrim-rgb),0.6)] to-transparent p-3 pt-10">
-                        <p className="truncate text-xs font-bold text-[color:var(--rich-black)]">{photo.name}</p>
-                        <p className="mt-0.5 text-[10px] font-semibold text-[color:var(--gold)]">{formatFileSize(photo.size)}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handlePhotoRemove(photo.id)}
-                        className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(26,26,26,0.75)] text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-[#D4786A]"
-                        aria-label={`Remove ${photo.name}`}
-                      >
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 6L6 18" />
-                          <path d="M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-        </div>
-
-        {/* Women's panel */}
-        <div
-          key="panel-women"
-          role="tabpanel"
-          id="panel-women"
-          aria-labelledby="tab-women"
-          hidden={activeTab !== "women"}
-          className={`measurement-panel ${activeTab === "women" ? "measurement-panel-enter" : ""}`}
-        >
-          <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-3">
-            {/* Measurement instructions */}
-            <div className="overflow-hidden rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/70 p-4 shadow-[0_12px_32px_rgba(var(--ink-rgb),0.04)] backdrop-blur-md md:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3v18" />
-                    <path d="M8 21h8" />
-                    <path d="M12 3c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z" />
-                  </svg>
-                </span>
-                <div>
-                  <h2 className="text-base font-black text-[color:var(--rich-black)] md:text-lg">
-                    How to measure — <span className="text-[color:var(--gold)]">Women</span>
-                  </h2>
-                  <p className="text-xs text-muted">Six key measurements for the perfect fit</p>
-                </div>
+            <div className="rounded-[1.5rem] border border-[rgba(201,168,76,0.12)] bg-white/75 p-4 shadow-[0_20px_60px_rgba(var(--ink-rgb),0.05)] md:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs leading-6 text-[color:var(--text-light)]">
+                  Enter each value inside its card, then submit the active tab to save the full set.
+                </p>
+                <button type="submit" className="button-primary px-6 py-3 text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(201,168,76,0.22)]">
+                  Submit {activeTab === "men" ? "Men's" : "Women's"} Measurements
+                </button>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {activeMeasurements.map((m) => (
-                  <div
-                    key={m.name}
-                    className="group rounded-xl border border-[rgba(201,168,76,0.10)] bg-white/60 p-3 transition-all duration-300 hover:border-[rgba(201,168,76,0.35)] hover:bg-[rgba(201,168,76,0.05)] hover:shadow-[0_8px_24px_rgba(201,168,76,0.10)]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.10)] text-[color:var(--gold)] transition-colors duration-300 group-hover:bg-[var(--gold-gradient)] group-hover:text-white">
-                        {m.icon}
-                      </span>
-                      <h3 className="text-xs font-extrabold uppercase tracking-[0.06em] text-[color:var(--rich-black)]">
-                        {m.name}
-                      </h3>
-                    </div>
-                    <p className="mt-2 text-[11px] leading-4 text-muted">{m.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Size chart */}
-            <div className="overflow-hidden rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/70 p-4 shadow-[0_12px_32px_rgba(var(--ink-rgb),0.04)] backdrop-blur-md md:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="16" rx="2" />
-                    <path d="M3 10h18" />
-                    <path d="M9 4v6" />
-                    <path d="M15 4v6" />
-                  </svg>
-                </span>
-                <div>
-                  <h2 className="text-base font-black text-[color:var(--rich-black)] md:text-lg">
-                    {activeTab === "men" ? "Men's" : "Women's"} <span className="text-[color:var(--gold)]">Size Chart</span>
-                  </h2>
-                  <p className="text-xs text-muted">Measurements in inches</p>
-                </div>
-              </div>
-
-              <div className="mt-4 -mx-2 overflow-x-auto px-2">
-                <table className="w-full min-w-[380px] border-collapse text-left">
-                  <thead>
-                    <tr>
-                      {chartColumns.map((col) => (
-                        <th key={col} className={headClass}>{col}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeChart.map((row) => (
-                      <tr key={row.size} className={rowClass}>
-                        <td className={`${cellClass} font-bold text-[color:var(--rich-black)]`}>{row.size}</td>
-                        {Object.entries(row)
-                          .filter(([key]) => key !== "size")
-                          .map(([key, value]) => (
-                            <td key={key} className={cellClass}>{value}</td>
-                          ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-3 text-[11px] text-[color:var(--text-light)]">
-                Sizes are approximate. Our atelier will take exact measurements.
-              </p>
-            </div>
-
-            {/* Tips card */}
-            <div className="rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/70 p-4 shadow-[0_12px_32px_rgba(var(--ink-rgb),0.04)] backdrop-blur-md md:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 18h6" />
-                    <path d="M10 22h4" />
-                    <path d="M12 2a7 7 0 00-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0012 2z" />
-                  </svg>
-                </span>
-                <h2 className="text-base font-black text-[color:var(--rich-black)] md:text-lg">
-                  Pro <span className="text-[color:var(--gold)]">Tips</span>
-                </h2>
-              </div>
-              <ul className="mt-4 space-y-2.5">
-                {tips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-xs leading-5 text-muted">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[10px] font-black text-[color:var(--gold)]">
-                      {i + 1}
-                    </span>
-                    {tip}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* ── Women's Measurement Form ── */}
-          <form
-            onSubmit={handleWomenFormSubmit}
-            noValidate
-            className="mt-10 rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8"
-          >
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
-                </span>
-                <div>
-                  <h2 className="text-xl font-black text-[color:var(--rich-black)] md:text-2xl">
-                    Women's <span className="text-[color:var(--gold)]">Measurement Form</span>
-                  </h2>
-                  <p className="text-sm text-muted">Enter all measurements in inches</p>
-                </div>
-              </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(201,168,76,0.20)] bg-[rgba(201,168,76,0.08)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-[color:var(--gold)]">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 3v18" />
-                  <path d="M8 21h8" />
-                  <path d="M12 3c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z" />
-                </svg>
-                All fields required
-              </span>
-            </div>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {womenFormFields.map((field) => {
-                const error = womenFormErrors[field];
-                const hasError = !!error;
-                return (
-                  <div key={field} className="group">
-                    <label
-                      htmlFor={`women-${field.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="mb-1.5 flex items-center justify-between text-xs font-bold uppercase tracking-[0.06em] text-[color:var(--muted)]"
-                    >
-                      <span>{field}</span>
-                      <span className="text-[10px] font-semibold normal-case tracking-normal text-[color:var(--gold)]">inches</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        id={`women-${field.toLowerCase().replace(/\s+/g, "-")}`}
-                        type="text"
-                        inputMode="decimal"
-                        placeholder="0.0"
-                        value={womenFormValues[field]}
-                        onChange={(e) => handleWomenFormChange(field, e.target.value)}
-                        aria-invalid={hasError}
-                        aria-describedby={hasError ? `women-${field.toLowerCase().replace(/\s+/g, "-")}-error` : undefined}
-                        className={`input-field pr-14 ${hasError ? "!border-[rgba(212,120,106,0.6)] !shadow-[0_0_0_4px_rgba(212,120,106,0.12)]" : ""}`}
-                      />
-                      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xs font-bold text-[color:var(--gold)]">
-                        in
-                      </span>
-                    </div>
-                    {hasError && (
-                      <p
-                        id={`women-${field.toLowerCase().replace(/\s+/g, "-")}-error`}
-                        className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-[#D4786A]"
-                      >
-                        <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" />
-                          <path d="M12 8v4" />
-                          <path d="M12 16h.01" />
-                        </svg>
-                        {error}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-              <p className={`text-xs ${womenFormSuccess ? "font-bold text-[color:var(--gold)]" : "text-[color:var(--text-light)]"}`}>
-                {womenFormSuccess
-                  ? "✓ All measurements recorded successfully."
-                  : womenFormAttempted
-                    ? "Please fix the highlighted fields and try again."
-                    : "All 18 fields are required. Values must be positive numbers."}
-              </p>
-              <button type="submit" className="button-primary px-8 py-3">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                Submit Measurements
-              </button>
+              {submitMessage && (
+                <p className="mt-4 rounded-2xl border border-[rgba(201,168,76,0.14)] bg-[rgba(201,168,76,0.08)] px-4 py-3 text-sm font-medium text-[color:var(--rich-black)]">
+                  {submitMessage}
+                </p>
+              )}
             </div>
           </form>
 
-          {/* ── Women's Measurement Reference Photos ── */}
-          <section className="mt-10 rounded-[1.75rem] border border-[rgba(201,168,76,0.15)] bg-white/70 p-6 shadow-[0_20px_50px_rgba(var(--ink-rgb),0.05)] backdrop-blur-md md:p-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]">
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <path d="M21 15l-5-5L5 21" />
-                  </svg>
-                </span>
-                <div>
-                  <h2 className="text-xl font-black text-[color:var(--rich-black)] md:text-2xl">
-                    Women's <span className="text-[color:var(--gold)]">Reference Photos</span>
-                  </h2>
-                  <p className="text-sm text-muted">Upload photos of your measurements for accurate tailoring</p>
-                </div>
-              </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(201,168,76,0.20)] bg-[rgba(201,168,76,0.08)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-[color:var(--gold)]">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <path d="M17 8l-5-5-5 5" />
-                  <path d="M12 3v12" />
-                </svg>
-                JPG · PNG · WebP
-              </span>
-            </div>
-
-            {/* Example photo types */}
-            <div className="mt-6 flex flex-wrap gap-2">
-              {womenPhotoExamples.map((example) => (
-                <span
-                  key={example}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,168,76,0.15)] bg-[rgba(201,168,76,0.06)] px-3 py-1 text-xs font-semibold text-[color:var(--muted)]"
-                >
-                  <svg className="h-3 w-3 text-[color:var(--gold)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
-                  {example}
-                </span>
-              ))}
-            </div>
-
-            {/* Drag & drop zone */}
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => fileInputRef.current?.click()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  fileInputRef.current?.click();
-                }
-              }}
-              onDragOver={handlePhotoDragOver}
-              onDragLeave={handlePhotoDragLeave}
-              onDrop={handlePhotoDrop}
-              className={`mt-6 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-all duration-300 ${
-                isDragging
-                  ? "border-[rgba(201,168,76,0.7)] bg-[rgba(201,168,76,0.10)] shadow-[0_0_0_4px_rgba(201,168,76,0.12)]"
-                  : "border-[rgba(201,168,76,0.25)] bg-white/40 hover:border-[rgba(201,168,76,0.5)] hover:bg-[rgba(201,168,76,0.05)]"
-              }`}
-            >
-              <span className={`flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 ${
-                isDragging ? "bg-[var(--gold-gradient)] text-white scale-110" : "bg-[rgba(201,168,76,0.12)] text-[color:var(--gold)]"
-              }`}>
-                <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <path d="M17 8l-5-5-5 5" />
-                  <path d="M12 3v12" />
-                </svg>
-              </span>
-              <p className="mt-4 text-base font-extrabold text-[color:var(--rich-black)]">
-                {isDragging ? "Drop your photos here" : "Drag & drop your photos here"}
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                or <span className="font-bold text-[color:var(--gold)] underline underline-offset-2">browse files</span>
-              </p>
-              <p className="mt-3 text-xs text-[color:var(--text-light)]">
-                Maximum {MAX_PHOTO_SIZE_MB}MB per file · JPG, PNG, or WebP
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                multiple
-                onChange={handlePhotoInputChange}
-                className="hidden"
-                aria-label="Upload women's measurement reference photos"
-              />
-            </div>
-
-            {/* Error message */}
-            {photoError && (
-              <div className="mt-4 flex items-start gap-2 rounded-xl border border-[rgba(212,120,106,0.30)] bg-[rgba(212,120,106,0.08)] px-4 py-3 text-sm font-semibold text-[#D4786A]">
-                <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 8v4" />
-                  <path d="M12 16h.01" />
-                </svg>
-                {photoError}
-              </div>
-            )}
-
-            {/* Uploaded photo previews */}
-            {photos.length > 0 && (
-              <div className="mt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-extrabold uppercase tracking-[0.08em] text-[color:var(--gold)]">
-                    Uploaded Photos ({photos.length})
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
-                      setPhotos([]);
-                    }}
-                    className="text-xs font-bold text-[color:var(--muted)] transition-colors hover:text-[#D4786A]"
-                  >
-                    Clear all
-                  </button>
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {photos.map((photo) => (
-                    <div
-                      key={photo.id}
-                      className="group relative overflow-hidden rounded-2xl border border-[rgba(201,168,76,0.15)] bg-white/60 shadow-[0_8px_24px_rgba(var(--ink-rgb),0.06)]"
-                    >
-                      <div className="aspect-[4/5] overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={photo.previewUrl}
-                          alt={photo.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(var(--scrim-rgb),0.92)] via-[rgba(var(--scrim-rgb),0.6)] to-transparent p-3 pt-10">
-                        <p className="truncate text-xs font-bold text-[color:var(--rich-black)]">{photo.name}</p>
-                        <p className="mt-0.5 text-[10px] font-semibold text-[color:var(--gold)]">{formatFileSize(photo.size)}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handlePhotoRemove(photo.id)}
-                        className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(26,26,26,0.75)] text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-[#D4786A]"
-                        aria-label={`Remove ${photo.name}`}
-                      >
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 6L6 18" />
-                          <path d="M6 6l12 12" />
-                        </svg>
-                      </button>
+          <ScrollReveal direction="scale" delay={0.08}>
+            <section className="overflow-hidden rounded-[2rem] border border-[rgba(201,168,76,0.18)] bg-[linear-gradient(135deg,#111111_0%,#1A1A1A_45%,#F8F1E6_45%,#FBF7F0_100%)] shadow-[0_28px_80px_rgba(var(--ink-rgb),0.10)]">
+              <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
+                <div className="flex items-center bg-[#111111] px-6 py-10 sm:px-8 sm:py-12 md:px-10 md:py-14">
+                  <div className="max-w-xl space-y-5">
+                    <span className="section-badge border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.10)] text-[color:var(--gold)]">
+                      Next step
+                    </span>
+                    <div className="space-y-3">
+                      <h2 className="text-3xl font-black tracking-tight text-[#F8F1E6] md:text-5xl">
+                        Ready to Find Your Perfect Fit?
+                      </h2>
+                      <p className="max-w-lg text-sm leading-7 text-[rgba(248,241,230,0.82)] md:text-base md:leading-8">
+                        Now that you know how to take your measurements, explore our collection and find pieces designed to fit you beautifully.
+                      </p>
                     </div>
-                  ))}
+
+                    <div className="flex flex-wrap gap-3">
+                      <Link
+                        href="/shop"
+                        className="inline-flex items-center justify-center rounded-full border border-[rgba(201,168,76,0.24)] bg-[color:var(--gold)] px-6 py-3 text-sm font-bold text-[#111111] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(201,168,76,0.24)]"
+                      >
+                        Explore the Collection
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative flex items-center justify-center bg-[#FBF7F0] px-6 py-10 sm:px-8 sm:py-12 md:px-10 md:py-14">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(201,168,76,0.12),transparent_46%),radial-gradient(circle_at_bottom_right,rgba(17,17,17,0.08),transparent_30%)]" />
+                  <div className="relative w-full max-w-md rounded-[1.5rem] border border-[rgba(201,168,76,0.14)] bg-white/75 p-6 shadow-[0_20px_60px_rgba(var(--ink-rgb),0.06)]">
+                    <div className="space-y-3">
+                      <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:var(--gold)]">
+                        Claireville luxury fitting
+                      </p>
+                      <p className="text-base leading-8 text-[color:var(--rich-black)]">
+                        Elegant pieces, carefully tailored silhouettes, and a refined shopping experience made to complement your measurements.
+                      </p>
+                    </div>
+                    <div className="mt-5 grid grid-cols-3 gap-3">
+                      {[
+                        "Warm ivory",
+                        "Champagne gold",
+                        "Polished black",
+                      ].map((tone) => (
+                        <div
+                          key={tone}
+                          className="rounded-2xl border border-[rgba(var(--ink-rgb),0.06)] bg-white px-3 py-4 text-center text-xs font-bold uppercase tracking-[0.16em] text-muted"
+                        >
+                          {tone}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-            )}
-          </section>
+            </section>
+          </ScrollReveal>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
